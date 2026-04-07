@@ -1,0 +1,18 @@
+(global-set-key (kbd "M-s") 'save-buffer)
+(global-set-key (kbd "M-c") 'kill-ring-save)
+(global-set-key (kbd "M-v") 'yank)
+(global-set-key (kbd "M-z") 'undo)
+
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "<return>") 'evil-open-below)
+  (define-key evil-normal-state-map (kbd "d") 'lsp-find-definition)
+  (define-key evil-normal-state-map (kbd "b") 'evil-jump-backward)
+  (define-key evil-normal-state-map (kbd "f f") 'projectile-find-file)
+  (define-key evil-normal-state-map (kbd "c") 'delete-window)
+  (define-key evil-normal-state-map (kbd "SPC /") 'split-window-horizontally)
+  (define-key evil-normal-state-map (kbd "x") 'kill-whole-line))
+
+(global-set-key (kbd "M-r") (lambda ()
+                               (interactive)
+                               (load-file "~/.emacs.d/init.el")
+                               (message "Config reloaded.")))
