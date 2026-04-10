@@ -6,9 +6,10 @@
 
 (require 'lsp-mode)
 (setq lsp-auto-guess-root t)
+(setq lsp-semantic-tokens-enable nil)
 (setq lsp-ui-doc-enable nil)
 (setq lsp-eldoc-enable-hover nil)
-(add-hook 'c++-mode-hook #'lsp)
+(add-hook 'c++-ts-mode-hook #'lsp)
 (setq lsp-clients-clangd-args '("--background-index" "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
 
 ;; Projectile: project file search

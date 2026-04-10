@@ -40,10 +40,21 @@
 (unless (package-installed-p 'ligature)
   (package-install 'ligature))
 (require 'ligature)
-(ligature-set-ligatures 'c++-mode
+(ligature-set-ligatures 'c++-ts-mode
   '("->" "->*" ">>" "<<" ">=" "<=" "==" "!=" "||" "&&"
     "::" "..." "/*" "*/" "//" "++"))
 (global-ligature-mode t)
+
+;; Tree-sitter: install C++ grammar and remap to ts-mode
+(setq treesit-font-lock-level 4)
+(setq treesit-language-source-alist
+      '((c "https://github.com/tree-sitter/tree-sitter-c")
+        (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
+(unless (treesit-language-available-p 'c)
+  (treesit-install-language-grammar 'c))
+(unless (treesit-language-available-p 'cpp)
+  (treesit-install-language-grammar 'cpp))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 
 ;; Ahungry theme
 (unless (package-installed-p 'ahungry-theme)
