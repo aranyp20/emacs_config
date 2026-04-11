@@ -56,6 +56,14 @@
   (treesit-install-language-grammar 'cpp))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 
+;; Consult: interactive search with live preview
+(unless (package-installed-p 'consult)
+  (package-refresh-contents)
+  (package-install 'consult))
+(require 'consult)
+(setq xref-show-xrefs-function #'consult-xref)
+(setq xref-show-definitions-function #'consult-xref)
+
 ;; Doom themes
 (unless (package-installed-p 'doom-themes)
   (package-install 'doom-themes))
