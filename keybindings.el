@@ -5,13 +5,15 @@
 
 (defun my-hungry-backspace ()
   (interactive)
-  (if (save-excursion
-        (skip-chars-backward " \t")
-        (bolp))
-      (progn
-        (delete-region (line-beginning-position) (point))
-        (delete-char -1))
-    (delete-char -1)))
+  (if (use-region-p)
+      (delete-region (region-beginning) (region-end))
+    (if (save-excursion
+          (skip-chars-backward " \t")
+          (bolp))
+        (progn
+          (delete-region (line-beginning-position) (point))
+          (delete-char -1))
+      (delete-char -1))))
 
 (with-eval-after-load 'evil
   (define-key evil-insert-state-map (kbd "DEL") 'my-hungry-backspace)
