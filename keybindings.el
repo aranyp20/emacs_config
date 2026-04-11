@@ -1,4 +1,7 @@
-(global-set-key (kbd "M-s") 'save-buffer)
+(global-set-key (kbd "M-s")
+  (lambda ()
+    (interactive)
+    (lsp-format-buffer)))
 (global-set-key (kbd "M-c") 'kill-ring-save)
 (global-set-key (kbd "M-v")
   (lambda ()

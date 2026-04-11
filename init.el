@@ -22,4 +22,12 @@
 (global-auto-revert-mode 1)
 (setq auto-revert-verbose nil)
 
+;; Silent autosave on every edit (no hooks triggered)
+(defun my/silent-save ()
+  (when (and buffer-file-name (buffer-modified-p) (not buffer-read-only))
+    (write-region (point-min) (point-max) buffer-file-name nil 'nomessage)
+    (set-buffer-modified-p nil)
+    (set-visited-file-modtime)))
+(add-hook 'after-change-functions (lambda (&rest _) (my/silent-save)))
+
 (projectile-switch-project-by-name "~/research/metal-sandbox")
