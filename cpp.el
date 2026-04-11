@@ -3,6 +3,8 @@
   (package-install 'smartparens))
 (require 'smartparens-config)
 (add-hook 'c++-ts-mode-hook #'smartparens-mode)
+(setq sp-highlight-pair-overlay nil)
+(add-hook 'c++-ts-mode-hook (lambda () (setq-local sp-autoskip-closing-pair nil)))
 
 ;; C++ indentation style
 (add-hook 'c++-ts-mode-hook
