@@ -16,6 +16,7 @@
 (load (expand-file-name "projects.el" (file-name-directory load-file-name)))
 
 (setq inhibit-startup-screen t)
+(setq ring-bell-function 'ignore)
 (setq create-lockfiles nil)
 
 ;; Save minibuffer history between sessions
