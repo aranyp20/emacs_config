@@ -3,7 +3,18 @@
 (global-set-key (kbd "M-v") 'yank)
 (global-set-key (kbd "M-z") 'undo)
 
+(defun my-hungry-backspace ()
+  (interactive)
+  (if (save-excursion
+        (skip-chars-backward " \t")
+        (bolp))
+      (progn
+        (delete-region (line-beginning-position) (point))
+        (delete-char -1))
+    (delete-char -1)))
+
 (with-eval-after-load 'evil
+  (define-key evil-insert-state-map (kbd "DEL") 'my-hungry-backspace)
   (define-key evil-normal-state-map (kbd "<return>")
     (lambda ()
       (interactive)
