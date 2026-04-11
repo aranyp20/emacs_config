@@ -4,7 +4,14 @@
 (global-set-key (kbd "M-z") 'undo)
 
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "<return>") 'evil-open-below)
+  (define-key evil-normal-state-map (kbd "<return>")
+    (lambda ()
+      (interactive)
+      (if buffer-read-only
+          (call-interactively (or (local-key-binding (kbd "<return>"))
+                                  (local-key-binding (kbd "RET"))
+                                  #'push-button))
+        (evil-open-below 1))))
   (define-key evil-normal-state-map (kbd "d") 'lsp-find-definition)
   (define-key evil-normal-state-map (kbd "b") 'evil-jump-backward)
   (define-key evil-normal-state-map (kbd "f f") 'projectile-find-file)
