@@ -46,6 +46,14 @@
     "::" "..." "/*" "*/" "//" "++"))
 (global-ligature-mode t)
 
+;; diff-hl: git diff indicators in the fringe
+(unless (package-installed-p 'diff-hl)
+  (package-refresh-contents)
+  (package-install 'diff-hl))
+(require 'diff-hl)
+(global-diff-hl-mode 1)
+(diff-hl-flydiff-mode 1)
+
 ;; Tree-sitter: install C++ grammar and remap to ts-mode
 (setq treesit-font-lock-level 4)
 (setq treesit-language-source-alist
