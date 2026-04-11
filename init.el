@@ -13,6 +13,7 @@
 (load (expand-file-name "cpp.el" (file-name-directory load-file-name)))
 (load (expand-file-name "lsp.el" (file-name-directory load-file-name)))
 (load (expand-file-name "style.el" (file-name-directory load-file-name)))
+(load (expand-file-name "projects.el" (file-name-directory load-file-name)))
 
 (setq inhibit-startup-screen t)
 
