@@ -56,10 +56,11 @@
   (treesit-install-language-grammar 'cpp))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 
-;; Ahungry theme
-(unless (package-installed-p 'ahungry-theme)
-  (package-install 'ahungry-theme))
-(load-theme 'ahungry t)
+;; Doom themes
+(unless (package-installed-p 'doom-themes)
+  (package-install 'doom-themes))
+(require 'doom-themes)
+(load-theme 'doom-shades-of-purple t)
 
 ;; Evil mode
 (unless (package-installed-p 'evil)
