@@ -70,6 +70,22 @@
 (require 'doom-themes)
 (load-theme 'doom-shades-of-purple t)
 
+;; Doom modeline
+(unless (package-installed-p 'doom-modeline)
+  (package-refresh-contents)
+  (package-install 'doom-modeline))
+(require 'doom-modeline)
+
+(doom-modeline-def-modeline 'my-minimal
+  '(bar buffer-info-simple buffer-position vcs)
+  '())
+
+(defun my-doom-modeline ()
+  (doom-modeline-set-modeline 'my-minimal 'default))
+
+(add-hook 'doom-modeline-mode-hook #'my-doom-modeline)
+(doom-modeline-mode 1)
+
 ;; Evil mode
 (unless (package-installed-p 'evil)
   (package-install 'evil))
