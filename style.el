@@ -1,5 +1,5 @@
-(set-face-attribute 'font-lock-keyword-face nil :foreground "#2F53EC")
-(set-face-attribute 'font-lock-function-name-face nil :foreground "#DB3371")
+(set-face-attribute 'font-lock-keyword-face nil :foreground "#74FAFC")
+(set-face-attribute 'font-lock-function-name-face nil :foreground "#FF2E00")
 (set-face-attribute 'font-lock-function-call-face nil :foreground "#80FB4C")
 (set-face-attribute 'font-lock-variable-use-face nil :foreground "white")
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
