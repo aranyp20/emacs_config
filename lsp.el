@@ -16,6 +16,15 @@
 (setq lsp-ui-doc-enable nil)
 (setq lsp-eldoc-enable-hover nil)
 (add-hook 'c++-ts-mode-hook #'lsp)
+
+(add-hook 'company-after-completion-hook
+          (lambda (candidate)
+            (when (and (derived-mode-p 'c++-ts-mode)
+                       (get-text-property 0 'lsp-completion-item candidate))
+              (let* ((item (get-text-property 0 'lsp-completion-item candidate))
+                     (kind (gethash "kind" item)))
+                (when (eq kind 9) ;; 9 = Module/Namespace in LSP
+                  (insert "::"))))))
 (setq lsp-clients-clangd-args '("--background-index" "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
 
 ;; Projectile: project file search
