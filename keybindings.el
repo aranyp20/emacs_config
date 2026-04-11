@@ -20,15 +20,26 @@
       (interactive)
       (let* ((root (projectile-project-root))
              (files (projectile-project-files root))
+             (sorted (sort files
+                           (lambda (a b)
+                             (and (string-prefix-p "src/" a)
+                                  (not (string-prefix-p "src/" b))))))
              (alist (mapcar
                      (lambda (f)
                        (cons (file-name-nondirectory f) f))
-                     files))
+                     sorted))
              (completion-extra-properties
               (list :annotation-function
                     (lambda (c) (concat "  " (file-name-directory (cdr (assoc c alist)))))))
              (completion-ignore-case t)
-             (chosen (completing-read "Find file: " alist nil t)))
+             (sort-fn (lambda (candidates) candidates))
+             (chosen (completing-read "Find file: "
+                       (lambda (str pred action)
+                         (if (eq action 'metadata)
+                             `(metadata (display-sort-function . ,sort-fn)
+                                        (cycle-sort-function . ,sort-fn))
+                           (complete-with-action action alist str pred)))
+                       nil t)))
         (find-file (expand-file-name (cdr (assoc chosen alist)) root)))))
   (define-key evil-normal-state-map (kbd "f s")
     (lambda ()
