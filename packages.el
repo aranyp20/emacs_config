@@ -46,14 +46,6 @@
     "::" "..." "/*" "*/" "//" "++"))
 (global-ligature-mode t)
 
-;; diff-hl: git diff indicators in the fringe
-(unless (package-installed-p 'diff-hl)
-  (package-refresh-contents)
-  (package-install 'diff-hl))
-(require 'diff-hl)
-(global-diff-hl-mode 1)
-(diff-hl-flydiff-mode 1)
-
 ;; Tree-sitter: install C++ grammar and remap to ts-mode
 (setq treesit-font-lock-level 4)
 (setq treesit-language-source-alist
@@ -104,6 +96,14 @@
 
 (add-hook 'doom-modeline-mode-hook #'my-doom-modeline)
 (doom-modeline-mode 1)
+
+;; diff-hl: git diff indicators in the fringe (after theme so faces are correct)
+(unless (package-installed-p 'diff-hl)
+  (package-refresh-contents)
+  (package-install 'diff-hl))
+(require 'diff-hl)
+(global-diff-hl-mode 1)
+(diff-hl-flydiff-mode 1)
 
 ;; Evil mode
 (unless (package-installed-p 'evil)
