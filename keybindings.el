@@ -15,7 +15,21 @@
   (define-key evil-normal-state-map (kbd "s") 'lsp-find-references)
   (define-key evil-normal-state-map (kbd "d") 'lsp-find-definition)
   (define-key evil-normal-state-map (kbd "b") 'evil-jump-backward)
-  (define-key evil-normal-state-map (kbd "f f") 'projectile-find-file)
+  (define-key evil-normal-state-map (kbd "f f")
+    (lambda ()
+      (interactive)
+      (let* ((root (projectile-project-root))
+             (files (projectile-project-files root))
+             (alist (mapcar
+                     (lambda (f)
+                       (cons (file-name-nondirectory f) f))
+                     files))
+             (completion-extra-properties
+              (list :annotation-function
+                    (lambda (c) (concat "  " (file-name-directory (cdr (assoc c alist)))))))
+             (completion-ignore-case t)
+             (chosen (completing-read "Find file: " alist nil t)))
+        (find-file (expand-file-name (cdr (assoc chosen alist)) root)))))
   (define-key evil-normal-state-map (kbd "f s")
     (lambda ()
       (interactive)

@@ -13,6 +13,7 @@
 (unless (package-installed-p 'orderless)
   (package-install 'orderless))
 (setq completion-styles '(orderless basic))
+(setq orderless-smart-case t)
 
 ;; Ultra-scroll: smooth scrolling
 (unless (package-installed-p 'ultra-scroll)
