@@ -5,6 +5,12 @@
   (package-install 'lsp-ui))
 
 (require 'lsp-mode)
+(unless (package-installed-p 'yasnippet)
+  (package-refresh-contents)
+  (package-install 'yasnippet))
+(require 'yasnippet)
+(yas-global-mode 1)
+(setq lsp-enable-snippet t)
 (setq lsp-auto-guess-root t)
 (setq lsp-semantic-tokens-enable nil)
 (setq lsp-ui-doc-enable nil)
