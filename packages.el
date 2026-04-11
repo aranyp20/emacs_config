@@ -116,3 +116,6 @@
 ;; Cursor shape: thin bar in insert, block in normal
 (setq evil-insert-state-cursor '(bar . 2))
 (setq evil-normal-state-cursor '(box))
+
+;;(fringe-mode '(8 . 8))
+

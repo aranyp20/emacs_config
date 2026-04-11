@@ -29,7 +29,9 @@
   (when (and buffer-file-name (buffer-modified-p) (not buffer-read-only))
     (write-region (point-min) (point-max) buffer-file-name nil 'nomessage)
     (set-buffer-modified-p nil)
-    (set-visited-file-modtime)))
+    (set-visited-file-modtime)
+    (when (vc-backend buffer-file-name)
+      (vc-file-setprop buffer-file-name 'vc-state 'edited))))
 (add-hook 'after-change-functions (lambda (&rest _) (my/silent-save)))
 
 (projectile-switch-project-by-name "~/research/metal-sandbox")
