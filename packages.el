@@ -70,11 +70,21 @@
 (require 'doom-themes)
 (load-theme 'doom-shades-of-purple t)
 
+;; Nerd icons
+(unless (package-installed-p 'nerd-icons)
+  (package-refresh-contents)
+  (package-install 'nerd-icons))
+(require 'nerd-icons)
+(unless (find-font (font-spec :family "Symbols Nerd Font Mono"))
+  (nerd-icons-install-fonts t))
+
 ;; Doom modeline
 (unless (package-installed-p 'doom-modeline)
   (package-refresh-contents)
   (package-install 'doom-modeline))
 (require 'doom-modeline)
+(setq doom-modeline-icon t
+      doom-modeline-major-mode-icon t)
 
 (doom-modeline-def-modeline 'my-minimal
   '(bar buffer-info-simple buffer-position vcs)
