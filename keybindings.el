@@ -1,6 +1,11 @@
 (global-set-key (kbd "M-s") 'save-buffer)
 (global-set-key (kbd "M-c") 'kill-ring-save)
-(global-set-key (kbd "M-v") 'yank)
+(global-set-key (kbd "M-v")
+  (lambda ()
+    (interactive)
+    (let ((start (point)))
+      (yank)
+      (indent-region start (point)))))
 (global-set-key (kbd "M-z") 'undo)
 
 (defun my-hungry-backspace ()
