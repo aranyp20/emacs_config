@@ -88,7 +88,7 @@
       doom-modeline-major-mode-icon t)
 
 (doom-modeline-def-modeline 'my-minimal
-  '(bar buffer-info-simple buffer-position vcs)
+  '(bar buffer-info-simple misc-info buffer-position vcs)
   '())
 
 (defun my-doom-modeline ()

@@ -1,3 +1,5 @@
+(which-function-mode 1)
+
 (set-cursor-color "black")
 (setq evil-default-cursor '("black" box))
 (setq evil-cursor-face 'my/cursor-face)
