@@ -2,8 +2,8 @@
 (setq evil-default-cursor '("black" box))
 (setq evil-cursor-face 'my/cursor-face)
 (set-face-attribute 'cursor nil :background "yellow" :foreground "black")
-(global-hl-line-mode 1)
-(set-face-attribute 'hl-line nil :background "#5D3FD3")
+;; (global-hl-line-mode 1)
+;; (set-face-attribute 'hl-line nil :background "#5D3FD3")
 
 (set-face-attribute 'font-lock-keyword-face nil :foreground "#74FAFC")
 (set-face-attribute 'font-lock-function-name-face nil :foreground "#FF2E00")
