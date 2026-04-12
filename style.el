@@ -24,6 +24,48 @@
                                          name: (identifier) @font-lock-function-call-face))))))
             (treesit-font-lock-recompute-features)))
 
+;; Highlight narrowest code block around cursor (tree-sitter)
+(defface my/block-highlight-face
+  '((t :background "#362F6A" :extend t))
+  "Face for highlighting the narrowest code block around point.")
+
+(defvar-local my/block-highlight-overlays nil)
+(defvar-local my/block-highlight-timer nil)
+
+(defun my/update-block-highlight (buf)
+  "Highlight the narrowest compound_statement around point in BUF."
+  (when (buffer-live-p buf)
+    (with-current-buffer buf
+      (mapc #'delete-overlay my/block-highlight-overlays)
+      (setq my/block-highlight-overlays nil)
+      (when (treesit-parser-list)
+        (let ((node (treesit-node-at (point))))
+          (while (and node (not (member (treesit-node-type node)
+                                        '("compound_statement"
+                                          "field_declaration_list"
+                                          "declaration_list"))))
+            (setq node (treesit-node-parent node)))
+          (when node
+            (let* ((start (save-excursion (goto-char (treesit-node-start node))
+                                          (line-beginning-position)))
+                   (end (save-excursion (goto-char (treesit-node-end node))
+                                        (min (1+ (line-end-position)) (point-max))))
+                   (ov (make-overlay start end)))
+              (overlay-put ov 'face 'my/block-highlight-face)
+              (overlay-put ov 'priority -50)
+              (overlay-put ov 'extend t)
+              (push ov my/block-highlight-overlays))))))))
+
+(defun my/schedule-block-highlight (&rest _)
+  (when (timerp my/block-highlight-timer)
+    (cancel-timer my/block-highlight-timer))
+  (setq my/block-highlight-timer
+        (run-with-idle-timer 0.1 nil #'my/update-block-highlight (current-buffer))))
+
+(add-hook 'c++-ts-mode-hook
+          (lambda ()
+            (add-hook 'post-command-hook #'my/schedule-block-highlight nil t)))
+
 ;; Black separator line above function definitions (tree-sitter)
 (defvar-local my/function-separator-timer nil)
 
