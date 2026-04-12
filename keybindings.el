@@ -15,6 +15,7 @@
       (yank)
       (indent-region start (point)))))
 (global-set-key (kbd "M-z") 'undo)
+(global-set-key (kbd "M-/") 'comment-or-uncomment-region)
 
 (defun my-hungry-backspace ()
   (interactive)
