@@ -15,6 +15,7 @@
 (setq lsp-semantic-tokens-enable nil)
 (setq lsp-ui-doc-enable nil)
 (setq lsp-eldoc-enable-hover nil)
+(setq lsp-headerline-breadcrumb-enable nil)
 (add-hook 'c++-ts-mode-hook #'lsp)
 
 (add-hook 'company-after-completion-hook
