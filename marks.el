@@ -83,8 +83,8 @@
                          (or (buffer-file-name mbuf) (buffer-name mbuf))))
                  (preview (my/mark-line-preview m))
                  (label (if (eq mbuf cur-buf)
-                            (format "L%d: %s" ln preview)
-                          (format "%s:%d: %s" fname ln preview)))
+                            preview
+                          (format "%s: %s" fname preview)))
                  (face (if (eq m nearest) 'my/mark-tab-active-face 'my/mark-tab-face))
                  (map (make-sparse-keymap)))
             (define-key map [header-line mouse-1]
