@@ -1,5 +1,7 @@
-(set-cursor-color "red")
-(setq evil-default-cursor '("red" box))
+(set-cursor-color "black")
+(setq evil-default-cursor '("black" box))
+(setq evil-cursor-face 'my/cursor-face)
+(set-face-attribute 'cursor nil :background "yellow" :foreground "black")
 (global-hl-line-mode 1)
 (set-face-attribute 'hl-line nil :background "#5D3FD3")
 
