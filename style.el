@@ -45,7 +45,9 @@
                                           "field_declaration_list"
                                           "declaration_list"))))
             (setq node (treesit-node-parent node)))
-          (when node
+          (when (and node
+                     (not (string= "namespace_definition"
+                                   (treesit-node-type (treesit-node-parent node)))))
             (let* ((start (save-excursion (goto-char (treesit-node-start node))
                                           (line-beginning-position)))
                    (end (save-excursion (goto-char (treesit-node-end node))
