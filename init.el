@@ -1,6 +1,7 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (blink-cursor-mode -1)
+(show-paren-mode -1)
 
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'none)
