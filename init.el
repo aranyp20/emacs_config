@@ -8,7 +8,7 @@
 
 (load (expand-file-name "packages.el" (file-name-directory load-file-name)))
 
-(set-face-attribute 'default nil :family "JetBrains Mono" :height 130)
+(set-face-attribute 'default nil :family "JetBrains Mono" :height 120)
 
 (load (expand-file-name "keybindings.el" (file-name-directory load-file-name)))
 (load (expand-file-name "cpp.el" (file-name-directory load-file-name)))
