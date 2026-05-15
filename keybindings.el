@@ -11,6 +11,8 @@
 (global-set-key (kbd "M-v")
   (lambda ()
     (interactive)
+    (when (use-region-p)
+      (delete-region (region-beginning) (region-end)))
     (let ((start (point)))
       (yank)
       (indent-region start (point)))))
