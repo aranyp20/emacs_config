@@ -16,6 +16,7 @@
 (setq lsp-ui-doc-enable nil)
 (setq lsp-eldoc-enable-hover nil)
 (setq lsp-headerline-breadcrumb-enable nil)
+(add-to-list 'auto-mode-alist '("\\.metal\\'" . c++-ts-mode))
 (add-hook 'c++-ts-mode-hook #'lsp)
 
 (add-hook 'company-after-completion-hook
