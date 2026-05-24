@@ -21,17 +21,34 @@
   (when-let ((win (get-buffer-window "*compilation*")))
     (delete-window win)))
 
+(defvar my/neumann-test-filter nil
+  "GTest filter string for NeumannTests, e.g. \"SuiteName.TestName\".")
+
+(defun my/set-neumann-test-filter ()
+  (interactive)
+  (setq my/neumann-test-filter
+        (let ((input (read-string "GTest filter (empty to clear): "
+                                  my/neumann-test-filter)))
+          (if (string-empty-p input) nil input)))
+  (message "NeumannTests filter: %s" (or my/neumann-test-filter "<none>")))
+
 (defun my/build-and-run-neumann-tests ()
   (interactive)
   (let* ((buf (get-buffer "*compilation*"))
          (proc (and buf (get-buffer-process buf))))
     (if (and proc (process-live-p proc))
         (kill-process proc)
-      (let ((default-directory (expand-file-name "~/research/metal-sandbox/")))
+      (let ((default-directory (expand-file-name "~/research/metal-sandbox/"))
+            (filter-arg (if my/neumann-test-filter
+                            (concat " --gtest_filter='*" my/neumann-test-filter "*'")
+                          "")))
         (compile
-         (concat "xcodebuild test -project build/xcode/research.xcodeproj"
-                 " -scheme NeumannTests -configuration Release 2>&1"))))))
+         (concat "xcodebuild -project build/xcode/research.xcodeproj"
+                 " -scheme NeumannTests -configuration Release 2>&1"
+                 " && build/xcode/src/NeumannTests/Release/NeumannTests.app/Contents/MacOS/NeumannTests"
+                 filter-arg))))))
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC b") 'my/build-and-run-metal-sandbox)
-  (define-key evil-normal-state-map (kbd "SPC u") 'my/build-and-run-neumann-tests))
+  (define-key evil-normal-state-map (kbd "SPC u") 'my/build-and-run-neumann-tests)
+  (define-key evil-normal-state-map (kbd "SPC U") 'my/set-neumann-test-filter))
