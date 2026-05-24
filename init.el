@@ -17,6 +17,7 @@
 (load (expand-file-name "style.el" (file-name-directory load-file-name)))
 (load (expand-file-name "marks.el" (file-name-directory load-file-name)))
 (load (expand-file-name "projects.el" (file-name-directory load-file-name)))
+(load (expand-file-name "debug.el" (file-name-directory load-file-name)))
 (load (expand-file-name "python.el" (file-name-directory load-file-name)))
 
 (setq inhibit-startup-screen t)
