@@ -26,14 +26,11 @@
                                          name: (identifier) @font-lock-function-call-face))))))
             (treesit-font-lock-recompute-features)))
 
-;; Highlight narrowest code block around cursor (tree-sitter)
-(defface my/block-highlight-face
-  '((t :background "#362F6A" :extend t))
-  "Face for highlighting the narrowest code block around point.")
-
+;; Outline narrowest code block around cursor (tree-sitter)
 (defvar-local my/block-highlight-overlays nil)
+
 (defun my/update-block-highlight ()
-  "Highlight the narrowest compound_statement around point."
+  "Draw border lines around the narrowest compound_statement around point."
   (mapc #'delete-overlay my/block-highlight-overlays)
   (setq my/block-highlight-overlays nil)
   (when (treesit-parser-list)
@@ -46,15 +43,24 @@
       (when (and node
                  (not (string= "namespace_definition"
                                (treesit-node-type (treesit-node-parent node)))))
-        (let* ((start (save-excursion (goto-char (treesit-node-start node))
-                                      (line-beginning-position)))
-               (end (save-excursion (goto-char (treesit-node-end node))
-                                    (min (1+ (line-end-position)) (point-max))))
-               (ov (make-overlay start end)))
-          (overlay-put ov 'face 'my/block-highlight-face)
-          (overlay-put ov 'priority -50)
-          (overlay-put ov 'extend t)
-          (push ov my/block-highlight-overlays))))))
+        (let* ((top-start (save-excursion (goto-char (treesit-node-start node))
+                                          (forward-line -1)
+                                          (line-beginning-position)))
+               (top-end   (save-excursion (goto-char (treesit-node-start node))
+                                          (forward-line -1)
+                                          (min (1+ (line-end-position)) (point-max))))
+               (bot-start (save-excursion (goto-char (treesit-node-end node))
+                                          (line-beginning-position)))
+               (bot-end   (save-excursion (goto-char (treesit-node-end node))
+                                          (min (1+ (line-end-position)) (point-max))))
+               (top-ov (make-overlay top-start top-end))
+               (bot-ov (make-overlay bot-start bot-end)))
+          (overlay-put top-ov 'face '(:underline (:color "#7B6FBF" :style line) :extend t))
+          (overlay-put top-ov 'priority -50)
+          (overlay-put bot-ov 'face '(:underline (:color "#7B6FBF" :style line) :extend t))
+          (overlay-put bot-ov 'priority -50)
+          (push top-ov my/block-highlight-overlays)
+          (push bot-ov my/block-highlight-overlays))))))
 
 (add-hook 'c++-ts-mode-hook
           (lambda ()
