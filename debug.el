@@ -159,11 +159,128 @@
       (delete-window win))
     (my/dape-run)))
 
+;;; --- Inline variable inspection ------------------------------------------
+
+(defun my/dape--sync-vars (conn varref)
+  "Synchronously fetch children of VARREF via CONN. Returns list or nil."
+  (let (done result)
+    (jsonrpc-async-request
+     conn 'variables (list :variablesReference varref)
+     :success-fn (lambda (r)
+                   (setq result (plist-get (plist-get r :body) :variables)
+                         done t))
+     :error-fn   (lambda (_) (setq done t)))
+    (let ((t0 (float-time)))
+      (while (and (not done) (< (- (float-time) t0) 2.0))
+        (accept-process-output nil 0.02 nil t)))
+    result))
+
+(defun my/dape--var-widget (conn var)
+  "Return widget spec for dape variable VAR."
+  (let ((name   (plist-get var :name))
+        (value  (or (plist-get var :value) ""))
+        (varref (or (plist-get var :variablesReference) 0)))
+    (if (> varref 0)
+        `(tree-widget
+          :tag ,(format "%s = %s" name value)
+          :expander ,(let ((vr varref))
+                       (lambda (_w)
+                         (mapcar (apply-partially #'my/dape--var-widget conn)
+                                 (my/dape--sync-vars conn vr)))))
+      `(item :tag ,(format "%s = %s" name value)))))
+
+(defun my/dape--find-var-in-scope (conn varref expr callback)
+  "Async search for EXPR in the variables of VARREF, call CALLBACK with var or nil."
+  (jsonrpc-async-request
+   conn 'variables (list :variablesReference varref)
+   :success-fn (lambda (res)
+                 (let* ((vars  (append (plist-get (plist-get res :body) :variables) nil))
+                        (found (seq-find (lambda (v)
+                                           (equal (plist-get v :name) expr))
+                                         vars)))
+                   (funcall callback found)))
+   :error-fn (lambda (_) (funcall callback nil))))
+
+(defun my/dape--evaluate-fallback (conn frame-id expr)
+  "Fall back to evaluate request when EXPR is not found in scope variables."
+  (jsonrpc-async-request
+   conn 'evaluate
+   (list :expression expr :frameId frame-id :context "watch")
+   :success-fn
+   (lambda (res)
+     (let* ((body   (plist-get res :body))
+            (value  (or (plist-get body :result) ""))
+            (varref (or (plist-get body :variablesReference) 0)))
+       (my/dape--show-inspect
+        conn expr
+        (list :name expr :value value :variablesReference varref))))
+   :error-fn
+   (lambda (err)
+     (message "dape-inspect: %s" (or (plist-get err :message) "failed")))))
+
+(defun my/dape--search-scopes (conn scopes expr frame-id)
+  "Search SCOPES in order for EXPR; fall back to evaluate if not found."
+  (if (null scopes)
+      (my/dape--evaluate-fallback conn frame-id expr)
+    (my/dape--find-var-in-scope
+     conn (plist-get (car scopes) :variablesReference) expr
+     (lambda (var)
+       (if var
+           (my/dape--show-inspect conn expr var)
+         (my/dape--search-scopes conn (cdr scopes) expr frame-id))))))
+
+(defun my/dape--show-inspect (conn expr var)
+  "Display VAR in the inspect popup buffer."
+  (let ((buf (get-buffer-create "*dape-inspect*")))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (kill-all-local-variables))
+      (setq-local header-line-format
+                  (concat " " (propertize expr 'face 'bold)))
+      (require 'tree-widget)
+      (let ((inhibit-read-only t))
+        (apply #'widget-create (my/dape--var-widget conn var))
+        (widget-setup))
+      (let ((km (make-sparse-keymap)))
+        (set-keymap-parent km widget-keymap)
+        (define-key km (kbd "q") #'quit-window)
+        (use-local-map km))
+      (when (fboundp 'evil-emacs-state)
+        (evil-emacs-state))
+      (goto-char (point-min)))
+    (display-buffer buf '((display-buffer-in-side-window)
+                          (side . bottom)
+                          (window-height . 12)))))
+
+(defun my/dape-inspect-at-point ()
+  "Show dape value for symbol at point in an expandable popup."
+  (interactive)
+  (unless (featurep 'dape) (user-error "No active dape session"))
+  (let* ((conn     (condition-case e
+                       (dape--live-connection 'last t)
+                     (error (user-error "%s" (error-message-string e)))))
+         (frame-id (plist-get (dape--current-stack-frame conn) :id))
+         (expr     (or (thing-at-point 'symbol t)
+                       (user-error "No symbol at point"))))
+    (jsonrpc-async-request
+     conn 'scopes (list :frameId frame-id)
+     :success-fn (lambda (res)
+                   (my/dape--search-scopes
+                    conn
+                    (append (plist-get (plist-get res :body) :scopes) nil)
+                    expr
+                    frame-id))
+     :error-fn (lambda (err)
+                 (message "dape-inspect: %s"
+                          (or (plist-get err :message) "failed"))))))
+
 ;;; --- Keybindings ---------------------------------------------------------
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
+  (define-key evil-normal-state-map (kbd "SPC e") #'my/dape-inspect-at-point)
   (define-key evil-normal-state-map (kbd "SPC c")
     (lambda ()
       (interactive)
