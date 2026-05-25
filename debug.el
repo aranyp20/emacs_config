@@ -73,6 +73,20 @@
           (puthash file (cons line lines) my/bp-table))))
     (my/bp-save)))
 
+(defun my/bp-clear-all ()
+  "Remove all breakpoints."
+  (interactive)
+  (if (featurep 'dape)
+      (dape-breakpoint-remove-all)
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (dolist (ov (overlays-in (point-min) (point-max)))
+          (when (overlay-get ov 'my/bp)
+            (delete-overlay ov))))))
+  (clrhash my/bp-table)
+  (my/bp-save)
+  (message "All breakpoints removed"))
+
 (defun my/bp-restore-in-buffer ()
   "Restore breakpoint indicators for the current buffer."
   (when-let ((lines (and (buffer-file-name)
@@ -337,6 +351,7 @@
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
+  (define-key evil-normal-state-map (kbd "SPC T") #'my/bp-clear-all)
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
   (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-tests)
   (define-key evil-normal-state-map (kbd "e")     #'my/dape-inspect-at-point)
