@@ -4,6 +4,9 @@
 (blink-cursor-mode -1)
 (show-paren-mode -1)
 
+(setq scroll-conservatively 101)
+(setq scroll-margin 0)
+
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'none)
 
