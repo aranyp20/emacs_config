@@ -88,14 +88,15 @@
 (add-hook 'find-file-hook #'my/bp-restore-in-buffer)
 (my/bp-load)
 
-;;; --- Debug toggle --------------------------------------------------------
+;;; --- Debug run -----------------------------------------------------------
 
-(defvar my/debug-mode nil)
-
-(defun my/debug-toggle ()
+(defun my/debug-run ()
+  "Build metal-sandbox in Debug config and start a dape/lldb-dap session."
   (interactive)
-  (setq my/debug-mode (not my/debug-mode))
-  (message "Debug mode: %s" (if my/debug-mode "ON" "OFF")))
+  (let ((default-directory my/metal-sandbox-root))
+    (add-hook 'compilation-finish-functions #'my/--on-debug-build-done)
+    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+                     " -scheme App -configuration Debug 2>&1"))))
 
 ;;; --- dape ----------------------------------------------------------------
 
@@ -158,19 +159,14 @@
       (delete-window win))
     (my/dape-run)))
 
-(defun my/build-and-run-metal-sandbox--debug-wrap (orig)
-  (if (not my/debug-mode)
-      (funcall orig)
-    (let ((default-directory my/metal-sandbox-root))
-      (add-hook 'compilation-finish-functions #'my/--on-debug-build-done)
-      (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
-                       " -scheme App -configuration Debug 2>&1")))))
-
-(advice-add 'my/build-and-run-metal-sandbox :around
-            #'my/build-and-run-metal-sandbox--debug-wrap)
-
 ;;; --- Keybindings ---------------------------------------------------------
 
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "SPC B") #'my/bp-toggle)
-  (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-toggle))
+  (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
+  (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
+  (define-key evil-normal-state-map (kbd "SPC c")
+    (lambda ()
+      (interactive)
+      (if (featurep 'dape)
+          (call-interactively #'dape-continue)
+        (user-error "Dape is not active")))))
