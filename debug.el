@@ -281,7 +281,8 @@
 
 (defun my/dape--show-inspect (conn expr var)
   "Display VAR in the inspect popup buffer."
-  (let ((buf (get-buffer-create "*dape-inspect*")))
+  (let ((origin (selected-window))
+        (buf (get-buffer-create "*dape-inspect*")))
     (with-current-buffer buf
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -296,13 +297,19 @@
         (set-keymap-parent km widget-keymap)
         (define-key km (kbd "RET") #'my/dape-inspect--toggle-line)
         (define-key km (kbd "q")   #'quit-window)
+        (define-key km (kbd "e")
+          (lambda ()
+            (interactive)
+            (when (window-live-p origin)
+              (select-window origin))))
         (use-local-map km))
       (when (fboundp 'evil-emacs-state)
         (evil-emacs-state))
       (goto-char (point-min)))
-    (display-buffer buf '((display-buffer-in-side-window)
-                          (side . bottom)
-                          (window-height . 12)))))
+    (select-window
+     (display-buffer buf '((display-buffer-in-side-window)
+                           (side . bottom)
+                           (window-height . 12))))))
 
 (defun my/dape-inspect-at-point ()
   "Show dape value for symbol at point in an expandable popup."
@@ -332,7 +339,7 @@
   (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
   (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-tests)
-  (define-key evil-normal-state-map (kbd "SPC e") #'my/dape-inspect-at-point)
+  (define-key evil-normal-state-map (kbd "e")     #'my/dape-inspect-at-point)
   (define-key evil-normal-state-map (kbd "SPC c")
     (lambda ()
       (interactive)
