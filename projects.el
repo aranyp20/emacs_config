@@ -50,5 +50,5 @@
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC b") 'my/build-and-run-metal-sandbox)
-  (define-key evil-normal-state-map (kbd "SPC u") 'my/build-and-run-neumann-tests)
+  (define-key evil-normal-state-map (kbd "SPC B") 'my/build-and-run-neumann-tests)
   (define-key evil-normal-state-map (kbd "SPC U") 'my/set-neumann-test-filter))

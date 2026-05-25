@@ -111,6 +111,11 @@
 (defconst my/lldb-dap
   "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-dap")
 
+(defconst my/neumann-tests-debug-exe
+  (expand-file-name
+   "build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
+   my/metal-sandbox-root))
+
 (unless (package-installed-p 'dape)
   (package-refresh-contents)
   (package-install 'dape))
@@ -161,6 +166,37 @@
     (when-let ((win (get-buffer-window "*compilation*")))
       (delete-window win))
     (my/dape-run)))
+
+(defun my/debug-tests ()
+  "Build NeumannTests in Debug config and start a dape/lldb-dap session."
+  (interactive)
+  (let ((default-directory my/metal-sandbox-root))
+    (add-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
+    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+                     " -scheme NeumannTests -configuration Debug 2>&1"))))
+
+(defun my/--on-debug-tests-done (buf msg)
+  (remove-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
+  (when (string-match-p "finished" msg)
+    (when-let ((win (get-buffer-window "*compilation*")))
+      (delete-window win))
+    (my/dape-tests-run)))
+
+(defun my/dape-tests-run ()
+  "Start a dape/lldb-dap session for NeumannTests."
+  (require 'dape)
+  (let ((config (list 'command my/lldb-dap
+                      :type "lldb"
+                      :request "launch"
+                      :program my/neumann-tests-debug-exe
+                      :cwd my/metal-sandbox-root
+                      :stopOnEntry :json-false)))
+    (when my/neumann-test-filter
+      (setq config (append config
+                            (list :args (vector (concat "--gtest_filter=*"
+                                                        my/neumann-test-filter
+                                                        "*"))))))
+    (dape config)))
 
 ;;; --- Inline variable inspection ------------------------------------------
 
@@ -298,6 +334,7 @@
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
+  (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-tests)
   (define-key evil-normal-state-map (kbd "SPC e") #'my/dape-inspect-at-point)
   (define-key evil-normal-state-map (kbd "SPC c")
     (lambda ()
