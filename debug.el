@@ -123,9 +123,6 @@
 (with-eval-after-load 'dape
   ;; Variables + stack on the right side
   (setq dape-buffer-window-arrangement 'right)
-  ;; Don't pop up the lldb REPL command window automatically
-  (add-to-list 'display-buffer-alist
-    '("\\*dape-repl\\*" (display-buffer-no-window) (allow-no-window . t)))
   ;; Named config for M-x dape manual use
   (add-to-list 'dape-configs
     `(metal-sandbox
