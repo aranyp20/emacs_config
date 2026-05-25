@@ -229,6 +229,20 @@
            (my/dape--show-inspect conn expr var)
          (my/dape--search-scopes conn (cdr scopes) expr frame-id))))))
 
+(defun my/dape-inspect--toggle-line ()
+  "Activate the first widget button on the current line."
+  (interactive)
+  (let ((end (line-end-position)))
+    (save-excursion
+      (beginning-of-line)
+      (catch 'done
+        (while (< (point) end)
+          (let ((w (widget-at (point))))
+            (when (and w (widget-get w :action))
+              (widget-apply-action w)
+              (throw 'done nil)))
+          (forward-char 1))))))
+
 (defun my/dape--show-inspect (conn expr var)
   "Display VAR in the inspect popup buffer."
   (let ((buf (get-buffer-create "*dape-inspect*")))
@@ -244,7 +258,8 @@
         (widget-setup))
       (let ((km (make-sparse-keymap)))
         (set-keymap-parent km widget-keymap)
-        (define-key km (kbd "q") #'quit-window)
+        (define-key km (kbd "RET") #'my/dape-inspect--toggle-line)
+        (define-key km (kbd "q")   #'quit-window)
         (use-local-map km))
       (when (fboundp 'evil-emacs-state)
         (evil-emacs-state))
