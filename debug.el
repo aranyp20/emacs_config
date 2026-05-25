@@ -135,6 +135,8 @@
   (package-install 'dape))
 
 (with-eval-after-load 'dape
+  ;; Highlight the entire stopped line in green
+  (set-face-attribute 'dape-source-line-face nil :background "#1f4d1f" :extend t)
   ;; Variables + stack on the right side
   (setq dape-buffer-window-arrangement 'right)
   ;; Named config for M-x dape manual use
