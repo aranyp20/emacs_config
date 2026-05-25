@@ -217,7 +217,7 @@
     (jsonrpc-async-request
      conn 'variables (list :variablesReference varref)
      :success-fn (lambda (r)
-                   (setq result (plist-get (plist-get r :body) :variables)
+                   (setq result (append (plist-get (plist-get r :body) :variables) nil)
                          done t))
      :error-fn   (lambda (_) (setq done t)))
     (let ((t0 (float-time)))
@@ -225,18 +225,36 @@
         (accept-process-output nil 0.02 nil t)))
     result))
 
+(defun my/dape--eigen-flatten (conn varref)
+  "Drill synchronously through single-child Eigen wrappers.
+Keeps descending as long as there is exactly one expandable child,
+then returns the final children list (the actual values)."
+  (let ((children (my/dape--sync-vars conn varref)))
+    (if (and (= (length children) 1)
+             (> (or (plist-get (car children) :variablesReference) 0) 0))
+        (my/dape--eigen-flatten conn (plist-get (car children) :variablesReference))
+      children)))
+
 (defun my/dape--var-widget (conn var)
   "Return widget spec for dape variable VAR."
   (let ((name   (plist-get var :name))
         (value  (or (plist-get var :value) ""))
-        (varref (or (plist-get var :variablesReference) 0)))
+        (varref (or (plist-get var :variablesReference) 0))
+        (type   (or (plist-get var :type) "")))
     (if (> varref 0)
-        `(tree-widget
-          :tag ,(format "%s = %s" name value)
-          :expander ,(let ((vr varref))
-                       (lambda (_w)
-                         (mapcar (apply-partially #'my/dape--var-widget conn)
-                                 (my/dape--sync-vars conn vr)))))
+        (if (string-match-p "Eigen::" type)
+            `(tree-widget
+              :tag ,(format "%s = %s" name value)
+              :expander ,(let ((vr varref))
+                           (lambda (_w)
+                             (mapcar (apply-partially #'my/dape--var-widget conn)
+                                     (my/dape--eigen-flatten conn vr)))))
+          `(tree-widget
+            :tag ,(format "%s = %s" name value)
+            :expander ,(let ((vr varref))
+                         (lambda (_w)
+                           (mapcar (apply-partially #'my/dape--var-widget conn)
+                                   (my/dape--sync-vars conn vr))))))
       `(item :tag ,(format "%s = %s" name value)))))
 
 (defun my/dape--find-var-in-scope (conn varref expr callback)
