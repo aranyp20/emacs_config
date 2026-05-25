@@ -1,5 +1,7 @@
 (which-function-mode 1)
 
+(set-face-attribute 'default nil :background "#352F66")
+
 (set-cursor-color "black")
 (setq evil-default-cursor '("black" box))
 (setq evil-cursor-face 'my/cursor-face)
