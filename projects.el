@@ -13,7 +13,8 @@
     (compile
      (concat "xcodebuild -project build/xcode/research.xcodeproj"
              " -scheme App -configuration Debug"
-             " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"
+             " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
+             " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"
              " && open -W build/xcode/src/App/Debug/Research.app")))
   (add-hook 'compilation-finish-functions #'my/close-compilation-on-finish))
 
@@ -46,7 +47,8 @@
         (compile
          (concat "xcodebuild -project build/xcode/research.xcodeproj"
                  " -scheme NeumannTests -configuration Debug"
-                 " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"
+                 " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
+                 " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"
                  " && build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
                  filter-arg))))))
 

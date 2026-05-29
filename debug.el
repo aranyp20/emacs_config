@@ -111,7 +111,8 @@
     (add-hook 'compilation-finish-functions #'my/--on-debug-build-done)
     (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
                      " -scheme App -configuration Debug"
-                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"))))
+                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
+                     " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
 
 ;;; --- dape ----------------------------------------------------------------
 
@@ -188,7 +189,8 @@
     (add-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
     (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
                      " -scheme NeumannTests -configuration Debug"
-                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"))))
+                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
+                     " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
 
 (defun my/--on-debug-tests-done (buf msg)
   (remove-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
