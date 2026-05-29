@@ -12,8 +12,9 @@
   (let ((default-directory (expand-file-name "~/research/metal-sandbox/")))
     (compile
      (concat "xcodebuild -project build/xcode/research.xcodeproj"
-             " -scheme App -configuration Release 2>&1"
-             " && open -W build/xcode/src/App/Release/Research.app")))
+             " -scheme App -configuration Debug"
+             " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"
+             " && open -W build/xcode/src/App/Debug/Research.app")))
   (add-hook 'compilation-finish-functions #'my/close-compilation-on-finish))
 
 (defun my/close-compilation-on-finish (_buf _msg)
@@ -44,8 +45,9 @@
                           "")))
         (compile
          (concat "xcodebuild -project build/xcode/research.xcodeproj"
-                 " -scheme NeumannTests -configuration Release 2>&1"
-                 " && build/xcode/src/NeumannTests/Release/NeumannTests.app/Contents/MacOS/NeumannTests"
+                 " -scheme NeumannTests -configuration Debug"
+                 " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"
+                 " && build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
                  filter-arg))))))
 
 (with-eval-after-load 'evil

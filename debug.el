@@ -110,7 +110,8 @@
   (let ((default-directory my/metal-sandbox-root))
     (add-hook 'compilation-finish-functions #'my/--on-debug-build-done)
     (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
-                     " -scheme App -configuration Debug 2>&1"))))
+                     " -scheme App -configuration Debug"
+                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"))))
 
 ;;; --- dape ----------------------------------------------------------------
 
@@ -186,7 +187,8 @@
   (let ((default-directory my/metal-sandbox-root))
     (add-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
     (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
-                     " -scheme NeumannTests -configuration Debug 2>&1"))))
+                     " -scheme NeumannTests -configuration Debug"
+                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu) 2>&1"))))
 
 (defun my/--on-debug-tests-done (buf msg)
   (remove-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
