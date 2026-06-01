@@ -132,7 +132,17 @@
              (ref (format "@%s:%d" file line)))
         (gui-set-selection 'CLIPBOARD ref)
         (message "%s" ref))))
-(define-key evil-normal-state-map (kbd "SPC r")
+(define-key evil-normal-state-map (kbd "SPC y")
+    (lambda ()
+      (interactive)
+      (let ((magit-buf (cl-find-if
+                        (lambda (w) (with-current-buffer (window-buffer w)
+                                      (derived-mode-p 'magit-mode)))
+                        (window-list))))
+        (if magit-buf
+            (delete-window magit-buf)
+          (magit-status)))))
+  (define-key evil-normal-state-map (kbd "SPC r")
     (lambda ()
       (interactive)
       (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t))

@@ -105,6 +105,11 @@
 (global-diff-hl-mode 1)
 (diff-hl-flydiff-mode 1)
 
+;; Magit: git interface
+(unless (package-installed-p 'magit)
+  (package-refresh-contents)
+  (package-install 'magit))
+
 ;; Evil mode
 (unless (package-installed-p 'evil)
   (package-install 'evil))
