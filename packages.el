@@ -109,6 +109,8 @@
 (unless (package-installed-p 'magit)
   (package-refresh-contents)
   (package-install 'magit))
+(with-eval-after-load 'magit
+  (setq magit-section-initial-visibility-alist '((file . hide))))
 
 ;; Evil mode
 (unless (package-installed-p 'evil)
