@@ -16,8 +16,10 @@
 (setq lsp-ui-doc-enable nil)
 (setq lsp-eldoc-enable-hover nil)
 (setq lsp-headerline-breadcrumb-enable nil)
+(setq lsp-log-io nil)
+(setq lsp-idle-delay 0.5)
 (add-to-list 'auto-mode-alist '("\\.metal\\'" . c++-ts-mode))
-(add-hook 'c++-ts-mode-hook #'lsp)
+(add-hook 'c++-ts-mode-hook #'lsp-deferred)  ;; non-blocking, nem fagyasztja be a buffert
 
 (add-hook 'company-after-completion-hook
           (lambda (candidate)
@@ -27,7 +29,9 @@
                      (kind (gethash "kind" item)))
                 (when (eq kind 9) ;; 9 = Module/Namespace in LSP
                   (insert "::"))))))
-(setq lsp-clients-clangd-args '("--background-index" "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
+(setq lsp-clients-clangd-args '("--background-index"
+                                 "--pch-storage=memory"
+                                 "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
 
 ;; Projectile: project file search
 (unless (package-installed-p 'projectile)
