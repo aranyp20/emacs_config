@@ -146,9 +146,10 @@
   (define-key evil-normal-state-map (kbd "SPC r")
     (lambda ()
       (interactive)
-      (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t))
-                ((symbol-function 'y-or-n-p) (lambda (&rest _) t)))
-        (diff-hl-revert-hunk)))))
+      (projectile-invalidate-cache nil)
+      (when-let ((ws (cl-first (lsp-workspaces))))
+        (lsp-workspace-restart ws))
+      (message "Project cache cleared, LSP workspace reloaded."))))
 
 (global-set-key (kbd "M-r") (lambda ()
                                (interactive)
