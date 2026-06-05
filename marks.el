@@ -225,9 +225,8 @@
 ;;; Keybindings ----------------------------------------------------------------
 
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "m") #'my/mark-toggle)
-  (define-key evil-normal-state-map (kbd "k") #'my/mark-remove-nearest)
-  (define-key evil-normal-state-map (kbd "SPC k") #'my/mark-clear-all))
+  (define-key evil-normal-state-map (kbd "SPC m") #'my/mark-toggle)
+  (define-key evil-normal-state-map (kbd "k") #'my/mark-remove-nearest))
 
 (global-set-key (kbd "M-<up>") #'my/mark-jump-next)
 (global-set-key (kbd "M-<down>") #'my/mark-jump-prev)

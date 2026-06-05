@@ -384,4 +384,6 @@ then returns the final children list (the actual values)."
       (interactive)
       (if (featurep 'dape)
           (call-interactively #'dape-continue)
-        (user-error "Dape is not active")))))
+        (user-error "Dape is not active"))))
+  (define-key evil-normal-state-map (kbd "SPC k") #'dape-quit)
+  (define-key evil-normal-state-map (kbd "SPC n") #'dape-next))

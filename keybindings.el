@@ -44,6 +44,7 @@
   (define-key evil-normal-state-map (kbd "s") 'lsp-find-references)
   (define-key evil-normal-state-map (kbd "d") 'lsp-find-definition)
   (define-key evil-normal-state-map (kbd "b") 'evil-jump-backward)
+  (define-key evil-normal-state-map (kbd "n") 'evil-jump-forward)
   (define-key evil-normal-state-map (kbd "f f")
     (lambda ()
       (interactive)
