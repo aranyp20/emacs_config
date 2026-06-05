@@ -7,6 +7,11 @@
 (setq scroll-conservatively 101)
 (setq scroll-margin 0)
 
+;; Center cursor after any jump
+(add-hook 'xref-after-jump-hook #'recenter)
+(advice-add 'evil-jump-forward  :after (lambda (&rest _) (recenter)))
+(advice-add 'evil-jump-backward :after (lambda (&rest _) (recenter)))
+
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'none)
 
