@@ -30,6 +30,7 @@
 
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'lolipop-mode)
+(setq lolipop-speed 2.0)
 (lolipop-mode 1)
 
 (setq inhibit-startup-screen t)
