@@ -28,6 +28,10 @@
 (load (expand-file-name "debug.el" (file-name-directory load-file-name)))
 (load (expand-file-name "python.el" (file-name-directory load-file-name)))
 
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'lolipop-mode)
+(lolipop-mode 1)
+
 (setq inhibit-startup-screen t)
 (setq ring-bell-function 'ignore)
 (setq create-lockfiles nil)
