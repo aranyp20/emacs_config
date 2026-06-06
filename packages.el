@@ -110,7 +110,15 @@
   (package-refresh-contents)
   (package-install 'magit))
 (with-eval-after-load 'magit
-  (setq magit-section-initial-visibility-alist '((file . hide))))
+  (setq magit-section-initial-visibility-alist '((file . hide)))
+  (setq magit-log-section-commit-count 30)
+  (setq magit-diff-refine-hunk t)
+  (setq diff-font-lock-syntax 'magit-style)
+  (require 'forge))
+
+(unless (package-installed-p 'forge)
+  (package-refresh-contents)
+  (package-install 'forge))
 
 ;; Evil mode
 (unless (package-installed-p 'evil)
