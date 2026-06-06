@@ -5,7 +5,7 @@
 (set-cursor-color "black")
 (setq evil-default-cursor '("black" box))
 (setq evil-cursor-face 'my/cursor-face)
-(set-face-attribute 'cursor nil :background "yellow" :foreground "black")
+(set-face-attribute 'cursor nil :background "black" :foreground "white")
 (global-hl-line-mode 1)
 (set-face-attribute 'hl-line nil :background "#3F3970")
 
