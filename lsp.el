@@ -31,6 +31,7 @@
                   (insert "::"))))))
 (setq lsp-clients-clangd-args '("--background-index"
                                  "--pch-storage=memory"
+                                 "--header-insertion=never"
                                  "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
 
 ;; Projectile: project file search
