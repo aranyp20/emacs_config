@@ -44,13 +44,22 @@
 (setq auto-revert-verbose nil)
 
 ;; Silent autosave on every edit (no hooks triggered)
+;; Inhibited during company completion to avoid saving mid-LSP-edit intermediate states
+(defvar-local my/inhibit-save nil)
 (defun my/silent-save ()
-  (when (and buffer-file-name (buffer-modified-p) (not buffer-read-only))
-    (write-region (point-min) (point-max) buffer-file-name nil 'nomessage)
-    (set-buffer-modified-p nil)
-    (set-visited-file-modtime)
-    (when (vc-backend buffer-file-name)
-      (vc-file-setprop buffer-file-name 'vc-state 'edited))))
+  (unless my/inhibit-save
+    (when (and buffer-file-name (buffer-modified-p) (not buffer-read-only))
+      (write-region (point-min) (point-max) buffer-file-name nil 'nomessage)
+      (set-buffer-modified-p nil)
+      (set-visited-file-modtime)
+      (when (vc-backend buffer-file-name)
+        (vc-file-setprop buffer-file-name 'vc-state 'edited)))))
 (add-hook 'after-change-functions (lambda (&rest _) (my/silent-save)))
+(with-eval-after-load 'company
+  (advice-add 'company-complete-selection :around
+              (lambda (fn &rest args)
+                (let ((my/inhibit-save t))
+                  (apply fn args))
+                (my/silent-save))))
 
 (projectile-switch-project-by-name "~/research/metal-sandbox")
