@@ -7,11 +7,16 @@
                (slot . 0)
                (window-height . 0.15)))
 
+(defvar my/xcode-developer-dir
+  "/Users/peter.arany/Downloads/Xcode-beta.app/Contents/Developer"
+  "Path to the Xcode Developer directory to use for builds.")
+
 (defun my/build-and-run-metal-sandbox ()
   (interactive)
   (let ((default-directory (expand-file-name "~/research/metal-sandbox/")))
     (compile
-     (concat "xcodebuild -project build/xcode/research.xcodeproj"
+     (concat "DEVELOPER_DIR=" my/xcode-developer-dir
+             " xcodebuild -project build/xcode/research.xcodeproj"
              " -scheme App -configuration Debug"
              " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
              " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"
@@ -45,7 +50,8 @@
                             (concat " --gtest_filter='*" my/neumann-test-filter "*'")
                           "")))
         (compile
-         (concat "xcodebuild -project build/xcode/research.xcodeproj"
+         (concat "DEVELOPER_DIR=" my/xcode-developer-dir
+                 " xcodebuild -project build/xcode/research.xcodeproj"
                  " -scheme NeumannTests -configuration Debug"
                  " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
                  " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"
