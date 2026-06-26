@@ -329,7 +329,8 @@ then returns the final children list (the actual values)."
                   (concat " " (propertize expr 'face 'bold)))
       (require 'tree-widget)
       (let ((inhibit-read-only t))
-        (apply #'widget-create (my/dape--var-widget conn var))
+        (setq-local my/dape-inspect--root
+                    (apply #'widget-create (my/dape--var-widget conn var)))
         (widget-setup))
       (let ((km (make-sparse-keymap)))
         (set-keymap-parent km widget-keymap)
@@ -340,6 +341,7 @@ then returns the final children list (the actual values)."
             (interactive)
             (when (window-live-p origin)
               (select-window origin))))
+        (define-key km (kbd "E")   #'my/dape-inspect-expand-and-copy)
         (use-local-map km))
       (when (fboundp 'evil-emacs-state)
         (evil-emacs-state))
@@ -371,6 +373,37 @@ then returns the final children list (the actual values)."
                  (message "dape-inspect: %s"
                           (or (plist-get err :message) "failed"))))))
 
+;;; --- Expand-all + copy ---------------------------------------------------
+
+(defun my/dape-inspect--open-node (w)
+  "Recursively open W if it is a closed tree-widget, then descend into children.
+Relies on tree-widget storing created child instances in the :children slot
+after the expander runs, so we traverse the widget tree directly instead of
+scanning the buffer."
+  (when (eq (widget-type w) 'tree-widget)
+    (unless (widget-get w :open)
+      (tree-widget-action w))
+    (dolist (child (widget-get w :children))
+      (my/dape-inspect--open-node child))))
+
+(defun my/dape-inspect--expand-all ()
+  "Recursively open every closed node in *dape-inspect* via the widget tree."
+  (require 'tree-widget)
+  (let ((buf (get-buffer "*dape-inspect*")))
+    (unless buf (user-error "No *dape-inspect* buffer"))
+    (with-current-buffer buf
+      (unless (and (boundp 'my/dape-inspect--root) my/dape-inspect--root)
+        (user-error "No root widget saved"))
+      (my/dape-inspect--open-node my/dape-inspect--root))))
+
+(defun my/dape-inspect-expand-and-copy ()
+  "Recursively expand all nodes in *dape-inspect* and copy buffer to clipboard."
+  (interactive)
+  (my/dape-inspect--expand-all)
+  (with-current-buffer (get-buffer "*dape-inspect*")
+    (kill-new (buffer-substring-no-properties (point-min) (point-max)))
+    (message "dape-inspect: copied to clipboard")))
+
 ;;; --- Keybindings ---------------------------------------------------------
 
 (with-eval-after-load 'evil
@@ -379,6 +412,7 @@ then returns the final children list (the actual values)."
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
   (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-tests)
   (define-key evil-normal-state-map (kbd "e")     #'my/dape-inspect-at-point)
+  (define-key evil-normal-state-map (kbd "SPC E") #'my/dape-inspect-expand-and-copy)
   (define-key evil-normal-state-map (kbd "SPC c")
     (lambda ()
       (interactive)
