@@ -312,7 +312,21 @@
               (lambda () '("--jql=project = LM ORDER BY created DESC")))
   (evil-define-key 'normal jira-issues-mode-map (kbd "q") #'my/jira-child-frame-close))
 
+(defvar my/jira-current-key nil
+  "Non-buffer-local fallback key for jira transient actions.")
+
+(with-eval-after-load 'jira-utils
+  (advice-add 'jira-utils-marked-item :around
+              (lambda (orig)
+                (or (funcall orig) my/jira-current-key))))
+
 (with-eval-after-load 'jira-detail
+  (evil-define-key 'normal jira-detail-mode-map (kbd "C")
+    (lambda () (interactive)
+      (when jira-detail--current-key
+        (setq my/jira-current-key jira-detail--current-key)
+        (jira-api-get-transitions (list jira-detail--current-key))
+        (transient-setup 'jira-actions-change-issue-menu))))
   (evil-define-key 'normal jira-detail-mode-map (kbd "q")
     (lambda () (interactive)
       (if (and (frame-live-p my/jira-child-frame)
