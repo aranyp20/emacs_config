@@ -164,10 +164,19 @@
              '(my/magit-child-frame-condition
                (my/magit-child-frame-action)))
 
+(defun my/magit-child-frame-close ()
+  "Bezárja a child frame-t és visszaadja a fókuszt a parent frame-nek."
+  (when (frame-live-p my/magit-child-frame)
+    (let ((parent (frame-parent my/magit-child-frame)))
+      (delete-frame my/magit-child-frame)
+      (setq my/magit-child-frame nil)
+      (when (frame-live-p parent)
+        (select-frame-set-input-focus parent)))))
+
 (defun my/magit-child-frame-toggle ()
   "SPC-y: floating magit-status child frame toggle.
-- Nincs frame       → megnyitja magit-statussal
-- Frame + status    → bezárja
+- Nincs frame        → megnyitja magit-statussal
+- Frame + status     → bezárja, fókusz vissza a parent frame-be
 - Frame + más buffer → visszavált magit-statusra (nem zárja be)"
   (interactive)
   (cond
@@ -177,8 +186,7 @@
       (magit-status)))
    ((with-current-buffer (window-buffer (frame-selected-window my/magit-child-frame))
       (derived-mode-p 'magit-status-mode))
-    (delete-frame my/magit-child-frame)
-    (setq my/magit-child-frame nil))
+    (my/magit-child-frame-close))
    (t
     (with-selected-frame my/magit-child-frame
       (magit-status)))))
@@ -191,9 +199,7 @@
                 (if (and (frame-live-p my/magit-child-frame)
                          (eq (selected-frame) my/magit-child-frame)
                          (derived-mode-p 'magit-status-mode))
-                    (progn
-                      (delete-frame my/magit-child-frame)
-                      (setq my/magit-child-frame nil))
+                    (my/magit-child-frame-close)
                   (apply orig-fn args)))))
 
 ;; Evil mode
