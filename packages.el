@@ -165,15 +165,23 @@
                (my/magit-child-frame-action)))
 
 (defun my/magit-child-frame-toggle ()
-  "SPC-y: floating magit-status child frame toggle."
+  "SPC-y: floating magit-status child frame toggle.
+- Nincs frame       → megnyitja magit-statussal
+- Frame + status    → bezárja
+- Frame + más buffer → visszavált magit-statusra (nem zárja be)"
   (interactive)
-  (if (frame-live-p my/magit-child-frame)
-      (progn
-        (delete-frame my/magit-child-frame)
-        (setq my/magit-child-frame nil))
+  (cond
+   ((not (frame-live-p my/magit-child-frame))
     (setq my/magit-child-frame (my/magit-child-frame--make))
     (with-selected-frame my/magit-child-frame
-      (magit-status))))
+      (magit-status)))
+   ((with-current-buffer (window-buffer (frame-selected-window my/magit-child-frame))
+      (derived-mode-p 'magit-status-mode))
+    (delete-frame my/magit-child-frame)
+    (setq my/magit-child-frame nil))
+   (t
+    (with-selected-frame my/magit-child-frame
+      (magit-status)))))
 
 (with-eval-after-load 'magit
   ;; q a status bufferen bezárja a child frame-t;
