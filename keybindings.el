@@ -125,7 +125,7 @@
       (when-let ((ws (cl-first (lsp-workspaces))))
         (lsp-workspace-restart ws))
       (message "CMake generated (x2), project cache cleared, LSP workspace reloaded.")))
-  (define-key evil-normal-state-map (kbd "SPC C")
+  (define-key evil-normal-state-map (kbd "C")
     (lambda ()
       (interactive)
       (let ((default-directory (expand-file-name "~/research/metal-sandbox/")))
