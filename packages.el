@@ -309,10 +309,28 @@
     (with-selected-frame my/jira-child-frame
       (jira-issues)))))
 
+(defun my/jira-create-issue ()
+  "Create a new issue in the LM project."
+  (interactive)
+  (let* ((project "LM")
+         (types-key (if (= jira-api-version 3) 'issueTypes 'values))
+         (response (jira-api-get-project-issue-types project :sync t))
+         (types (append (alist-get types-key response) nil))
+         (non-subtasks (cl-remove-if (lambda (item) (eq (alist-get 'subtask item) t)) types))
+         (choices (mapcar (lambda (item)
+                            (cons (alist-get 'name item) (alist-get 'id item)))
+                          non-subtasks))
+         (chosen-name (completing-read "Issue type: " (mapcar #'car choices) nil t))
+         (type-id (cdr (assoc chosen-name choices))))
+    (jira-complete-ask-issue-fields
+     project type-id
+     :callback #'jira-detail--create-issue-from-fields)))
+
 (with-eval-after-load 'jira-issues
   (advice-add 'jira-issues--transient-default-value :override
               (lambda () '("--jql=project = LM ORDER BY created DESC")))
-  (evil-define-key 'normal jira-issues-mode-map (kbd "q") #'my/jira-child-frame-close))
+  (evil-define-key 'normal jira-issues-mode-map (kbd "q") #'my/jira-child-frame-close)
+  (evil-define-key 'normal jira-issues-mode-map (kbd "N") #'my/jira-create-issue))
 
 (defvar my/jira-current-key nil
   "Non-buffer-local fallback key for jira transient actions.")
