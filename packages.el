@@ -320,6 +320,18 @@
               (lambda (orig)
                 (or (funcall orig) my/jira-current-key))))
 
+(with-eval-after-load 'jira-complete
+  (advice-add 'jira-complete--ask-autocomplete :around
+              (lambda (orig fname url is-array)
+                (if (string= fname "Assignee")
+                    (let* ((names (hash-table-keys jira-users))
+                           (choices (cons "Unassigned" names))
+                           (selected (completing-read "Assignee: " choices nil t)))
+                      (if (string= selected "Unassigned")
+                          nil
+                        `((accountId . ,(gethash selected jira-users)))))
+                  (funcall orig fname url is-array)))))
+
 (with-eval-after-load 'jira-detail
   (evil-define-key 'normal jira-detail-mode-map (kbd "C")
     (lambda () (interactive)
