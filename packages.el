@@ -236,7 +236,87 @@
 (setq auth-sources '("~/.authinfo"))
 (setq jira-base-url "https://shapr3d.atlassian.net")
 (setq jira-api-version 3)
+
+;; Floating child frame for jira – same approach as magit
+(defvar my/jira-child-frame nil "Floating child frame for jira.")
+
+(defun my/jira-child-frame--make ()
+  (let* ((parent (selected-frame))
+         (cw     (frame-char-width  parent))
+         (ch     (frame-char-height parent))
+         (pcols  (frame-width  parent))
+         (prows  (frame-height parent))
+         (fcols  (round (* pcols 0.85)))
+         (frows  (round (* prows 0.85)))
+         (left   (/ (- (* pcols cw) (* fcols cw)) 2))
+         (top    (/ (- (* prows ch) (* frows ch)) 2)))
+    (let ((frame
+           (make-frame
+            `((parent-frame             . ,parent)
+              (width                    . ,fcols)
+              (height                   . ,frows)
+              (left                     . ,left)
+              (top                      . ,top)
+              (undecorated              . t)
+              (child-frame-border-width . 3)
+              (internal-border-width    . 0)
+              (minibuffer               . nil)
+              (tool-bar-lines           . 0)
+              (menu-bar-lines           . 0)
+              (vertical-scroll-bars     . nil)))))
+      (set-face-attribute 'child-frame-border frame :background "#9d79d6")
+      frame)))
+
+(defun my/jira-child-frame-condition (buf-name _action)
+  (and (frame-live-p my/jira-child-frame)
+       (with-current-buffer (get-buffer buf-name)
+         (derived-mode-p 'jira-issues-mode 'jira-detail-mode
+                         'jira-edit-mode 'jira-tempo-mode))))
+
+(defun my/jira-child-frame-action (buf _alist)
+  (let ((win (frame-selected-window my/jira-child-frame)))
+    (with-selected-window win
+      (switch-to-buffer buf))
+    win))
+
+(add-to-list 'display-buffer-alist
+             '(my/jira-child-frame-condition
+               (my/jira-child-frame-action)))
+
+(defun my/jira-child-frame-close ()
+  (interactive)
+  (when (frame-live-p my/jira-child-frame)
+    (let ((parent (frame-parent my/jira-child-frame)))
+      (delete-frame my/jira-child-frame)
+      (setq my/jira-child-frame nil)
+      (when (frame-live-p parent)
+        (select-frame-set-input-focus parent)))))
+
+(defun my/jira-child-frame-toggle ()
+  "SPC-j: floating jira-issues child frame toggle."
+  (interactive)
+  (cond
+   ((not (frame-live-p my/jira-child-frame))
+    (setq my/jira-child-frame (my/jira-child-frame--make))
+    (with-selected-frame my/jira-child-frame
+      (jira-issues)))
+   ((with-current-buffer (window-buffer (frame-selected-window my/jira-child-frame))
+      (derived-mode-p 'jira-issues-mode))
+    (my/jira-child-frame-close))
+   (t
+    (with-selected-frame my/jira-child-frame
+      (jira-issues)))))
+
 (with-eval-after-load 'jira-issues
   (advice-add 'jira-issues--transient-default-value :override
               (lambda () '("--jql=project = LM ORDER BY created DESC")))
-  (evil-define-key 'normal jira-issues-mode-map (kbd "q") (lambda () (interactive) (kill-buffer (current-buffer)))))
+  (evil-define-key 'normal jira-issues-mode-map (kbd "q") #'my/jira-child-frame-close))
+
+(with-eval-after-load 'jira-detail
+  (evil-define-key 'normal jira-detail-mode-map (kbd "q")
+    (lambda () (interactive)
+      (if (and (frame-live-p my/jira-child-frame)
+               (get-buffer "*Jira Issues*"))
+          (with-selected-frame my/jira-child-frame
+            (switch-to-buffer "*Jira Issues*"))
+        (kill-buffer (current-buffer))))))
