@@ -112,7 +112,7 @@
 (with-eval-after-load 'magit
   (setq magit-section-initial-visibility-alist '((file . hide)))
   (setq magit-log-section-commit-count 30)
-  (setq magit-diff-refine-hunk t)
+  (setq magit-diff-refine-hunk nil)
   (setq diff-font-lock-syntax 'magit-style)
   (require 'forge))
 
