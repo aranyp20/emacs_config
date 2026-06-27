@@ -124,7 +124,7 @@
 (defvar my/magit-child-frame nil "Floating child frame for magit.")
 
 (defun my/magit-child-frame--make ()
-  "Létrehoz egy középre igazított, dísztelen child frame-t."
+  "Létrehoz egy középre igazított, dísztelen child frame-t látható kerettel."
   (let* ((parent (selected-frame))
          (cw     (frame-char-width  parent))
          (ch     (frame-char-height parent))
@@ -134,19 +134,22 @@
          (frows  (round (* prows 0.85)))
          (left   (/ (- (* pcols cw) (* fcols cw)) 2))
          (top    (/ (- (* prows ch) (* frows ch)) 2)))
-    (make-frame
-     `((parent-frame             . ,parent)
-       (width                    . ,fcols)
-       (height                   . ,frows)
-       (left                     . ,left)
-       (top                      . ,top)
-       (undecorated              . t)
-       (child-frame-border-width . 2)
-       (internal-border-width    . 2)
-       (minibuffer               . nil)
-       (tool-bar-lines           . 0)
-       (menu-bar-lines           . 0)
-       (vertical-scroll-bars     . nil)))))
+    (let ((frame
+           (make-frame
+            `((parent-frame             . ,parent)
+              (width                    . ,fcols)
+              (height                   . ,frows)
+              (left                     . ,left)
+              (top                      . ,top)
+              (undecorated              . t)
+              (child-frame-border-width . 3)
+              (internal-border-width    . 0)
+              (minibuffer               . nil)
+              (tool-bar-lines           . 0)
+              (menu-bar-lines           . 0)
+              (vertical-scroll-bars     . nil)))))
+      (set-face-attribute 'child-frame-border frame :background "#9d79d6")
+      frame)))
 
 ;; display-buffer-alist: minden magit buffer a child frame-be megy
 (defun my/magit-child-frame-condition (buf-name _action)
