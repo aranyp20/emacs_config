@@ -236,6 +236,7 @@
 (setq auth-sources '("~/.authinfo"))
 (setq jira-base-url "https://shapr3d.atlassian.net")
 (setq jira-api-version 3)
+(setq jira-detail-show-announcements nil)
 
 ;; Floating child frame for jira – same approach as magit
 (defvar my/jira-child-frame nil "Floating child frame for jira.")
