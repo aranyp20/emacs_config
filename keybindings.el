@@ -114,6 +114,7 @@
         (gui-set-selection 'CLIPBOARD ref)
         (message "%s" ref))))
 (define-key evil-normal-state-map (kbd "y") #'my/magit-child-frame-toggle)
+  (define-key evil-normal-state-map (kbd "SPC j") #'jira-issues)
   (define-key evil-normal-state-map (kbd "SPC r")
     (lambda ()
       (interactive)

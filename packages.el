@@ -238,4 +238,5 @@
 (setq jira-api-version 3)
 (with-eval-after-load 'jira-issues
   (advice-add 'jira-issues--transient-default-value :override
-              (lambda () '("--jql=project = LM ORDER BY created DESC"))))
+              (lambda () '("--jql=project = LM ORDER BY created DESC")))
+  (evil-define-key 'normal jira-issues-mode-map (kbd "q") (lambda () (interactive) (kill-buffer (current-buffer)))))
