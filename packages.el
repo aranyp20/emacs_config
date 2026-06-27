@@ -194,7 +194,17 @@
     (with-selected-frame my/magit-child-frame
       (magit-status)))))
 
+(defun my/magit-squash-diff-to-head ()
+  "Megmutatja az összes diffet a kijelölt committól HEAD-ig (mintha squasholva lennének)."
+  (interactive)
+  (let ((commit (magit-commit-at-point)))
+    (unless commit (user-error "Nincs commit a kurzor alatt"))
+    (magit-diff-range (format "%s^..HEAD" commit))))
+
+
 (with-eval-after-load 'magit
+  ;; ~ bármely magit bufferben: squash diff a kijelölt committól HEAD-ig
+  (define-key magit-mode-map (kbd "D") #'my/magit-squash-diff-to-head)
   ;; q a status bufferen bezárja a child frame-t;
   ;; sub-buffereken (log, diff) normálisan visszanavigál
   (advice-add 'magit-mode-bury-buffer :around
