@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; Package manager setup
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -353,6 +354,40 @@
                   (funcall orig fname url is-array)))))
 
 (with-eval-after-load 'jira-detail
+  (advice-add 'jira-detail--update-field :override
+              (lambda ()
+                (let* ((field-alist jira-detail--updatable-fields)
+                       (field-names (mapcar #'car field-alist))
+                       (chosen (completing-read "Field to update: " field-names nil t))
+                       (key jira-detail--current-key))
+                  (when chosen
+                    (jira-detail--ensure-update-metadata)
+                    (cond
+                     ((string= chosen "Description")
+                      (jira-detail--edit-description-and-update))
+                     ((string= chosen "Summary")
+                      (let ((current (alist-get 'summary (alist-get 'fields jira-detail--current))))
+                        (jira-edit-create-editor-buffer
+                         "*Jira Edit Summary*"
+                         current
+                         (lambda (new-summary)
+                           (jira-detail--update-field-action "summary" new-summary key)))))
+                     ((or (string= chosen "Original Estimate")
+                          (string= chosen "Remaining Estimate"))
+                      (let* ((field-id (jira-detail--updatable-field-id chosen))
+                             (value (read-string (format "Enter value for %s: " chosen))))
+                        (jira-detail--update-timetracking-action field-id value key)))
+                     (t
+                      (let* ((field-id (jira-detail--updatable-field-id chosen))
+                             (fields (alist-get 'fields jira-detail--current-update-metadata))
+                             (field-metadata
+                              (car (seq-filter
+                                    (lambda (f) (string= (alist-get 'fieldId f) field-id))
+                                    fields))))
+                        (if field-metadata
+                            (let ((value (jira-complete-ask-field field-metadata)))
+                              (jira-detail--update-field-action field-id value key))
+                          (message "Could not find metadata for field %s" field-id)))))))))
   (evil-define-key 'normal jira-detail-mode-map (kbd "C")
     (lambda () (interactive)
       (when jira-detail--current-key
