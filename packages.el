@@ -237,6 +237,7 @@
 (setq jira-base-url "https://shapr3d.atlassian.net")
 (setq jira-api-version 3)
 (setq jira-detail-show-announcements nil)
+(setq jira-issues-table-fields '(:key :issue-type-name :status-name :assignee-name :summary))
 
 ;; Floating child frame for jira – same approach as magit
 (defvar my/jira-child-frame nil "Floating child frame for jira.")
