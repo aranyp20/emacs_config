@@ -120,6 +120,51 @@
   (package-refresh-contents)
   (package-install 'forge))
 
+;; Posframe: floating child-frame for magit-status
+(unless (package-installed-p 'posframe)
+  (package-refresh-contents)
+  (package-install 'posframe))
+(require 'posframe)
+
+(defvar my/magit-posframe-buf nil
+  "Magit-status buffer currently shown in the posframe.")
+
+(defun my/magit-posframe--find-buf ()
+  "Return the live magit-status buffer, or nil."
+  (cl-find-if (lambda (b)
+                (with-current-buffer b
+                  (derived-mode-p 'magit-status-mode)))
+              (buffer-list)))
+
+(defun my/magit-posframe-hide ()
+  "Hide (but don't kill) the magit posframe."
+  (when (and my/magit-posframe-buf (buffer-live-p my/magit-posframe-buf))
+    (posframe-hide my/magit-posframe-buf))
+  (setq my/magit-posframe-buf nil))
+
+(defun my/magit-posframe-toggle ()
+  "Toggle magit-status in a centered floating posframe."
+  (interactive)
+  (if (and my/magit-posframe-buf (buffer-live-p my/magit-posframe-buf))
+      (my/magit-posframe-hide)
+    ;; Let magit create/refresh its buffer without touching windows
+    (save-window-excursion (magit-status))
+    (let ((buf (my/magit-posframe--find-buf)))
+      (setq my/magit-posframe-buf buf)
+      (when buf
+        (posframe-show buf
+                       :poshandler #'posframe-poshandler-frame-center
+                       :width  (round (* (frame-width)  0.85))
+                       :height (round (* (frame-height) 0.85))
+                       :accept-focus t
+                       :internal-border-width 2
+                       :internal-border-color "#7c5cbf")))))
+
+;; q magit-ban zárja be a posframe-t is
+(with-eval-after-load 'magit
+  (advice-add 'magit-mode-bury-buffer :after
+              (lambda (&rest _) (my/magit-posframe-hide))))
+
 ;; Evil mode
 (unless (package-installed-p 'evil)
   (package-install 'evil))
