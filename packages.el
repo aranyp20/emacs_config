@@ -120,50 +120,73 @@
   (package-refresh-contents)
   (package-install 'forge))
 
-;; Posframe: floating child-frame for magit-status
-(unless (package-installed-p 'posframe)
-  (package-refresh-contents)
-  (package-install 'posframe))
-(require 'posframe)
+;; Floating child frame for magit – make-frame alapú, nem posframe
+(defvar my/magit-child-frame nil "Floating child frame for magit.")
 
-(defvar my/magit-posframe-buf nil
-  "Magit-status buffer currently shown in the posframe.")
+(defun my/magit-child-frame--make ()
+  "Létrehoz egy középre igazított, dísztelen child frame-t."
+  (let* ((parent (selected-frame))
+         (cw     (frame-char-width  parent))
+         (ch     (frame-char-height parent))
+         (pcols  (frame-width  parent))
+         (prows  (frame-height parent))
+         (fcols  (round (* pcols 0.85)))
+         (frows  (round (* prows 0.85)))
+         (left   (/ (- (* pcols cw) (* fcols cw)) 2))
+         (top    (/ (- (* prows ch) (* frows ch)) 2)))
+    (make-frame
+     `((parent-frame             . ,parent)
+       (width                    . ,fcols)
+       (height                   . ,frows)
+       (left                     . ,left)
+       (top                      . ,top)
+       (undecorated              . t)
+       (child-frame-border-width . 2)
+       (internal-border-width    . 2)
+       (minibuffer               . nil)
+       (tool-bar-lines           . 0)
+       (menu-bar-lines           . 0)
+       (vertical-scroll-bars     . nil)))))
 
-(defun my/magit-posframe--find-buf ()
-  "Return the live magit-status buffer, or nil."
-  (cl-find-if (lambda (b)
-                (with-current-buffer b
-                  (derived-mode-p 'magit-status-mode)))
-              (buffer-list)))
+;; display-buffer-alist: minden magit buffer a child frame-be megy
+(defun my/magit-child-frame-condition (buf-name _action)
+  (and (frame-live-p my/magit-child-frame)
+       (with-current-buffer (get-buffer buf-name)
+         (derived-mode-p 'magit-mode))))
 
-(defun my/magit-posframe-hide ()
-  "Hide (but don't kill) the magit posframe."
-  (when (and my/magit-posframe-buf (buffer-live-p my/magit-posframe-buf))
-    (posframe-hide my/magit-posframe-buf))
-  (setq my/magit-posframe-buf nil))
+(defun my/magit-child-frame-action (buf _alist)
+  (let ((win (frame-selected-window my/magit-child-frame)))
+    (with-selected-window win
+      (switch-to-buffer buf))
+    win))
 
-(defun my/magit-posframe-toggle ()
-  "Toggle magit-status in a centered floating posframe."
+(add-to-list 'display-buffer-alist
+             '(my/magit-child-frame-condition
+               (my/magit-child-frame-action)))
+
+(defun my/magit-child-frame-toggle ()
+  "SPC-y: floating magit-status child frame toggle."
   (interactive)
-  (if (and my/magit-posframe-buf (buffer-live-p my/magit-posframe-buf))
-      (my/magit-posframe-hide)
-    ;; Let magit create/refresh its buffer without touching windows
-    (save-window-excursion (magit-status))
-    (let ((buf (my/magit-posframe--find-buf)))
-      (setq my/magit-posframe-buf buf)
-      (when buf
-        (posframe-show buf
-                       :poshandler #'posframe-poshandler-frame-center
-                       :width  (round (* (frame-width)  0.85))
-                       :height (round (* (frame-height) 0.85))
-                       :accept-focus t
-                       :internal-border-width 2
-                       :internal-border-color "#7c5cbf")))))
+  (if (frame-live-p my/magit-child-frame)
+      (progn
+        (delete-frame my/magit-child-frame)
+        (setq my/magit-child-frame nil))
+    (setq my/magit-child-frame (my/magit-child-frame--make))
+    (with-selected-frame my/magit-child-frame
+      (magit-status))))
 
-;; q magit-ban zárja be a posframe-t is
 (with-eval-after-load 'magit
-  (advice-add 'magit-mode-bury-buffer :after
-              (lambda (&rest _) (my/magit-posframe-hide))))
+  ;; q a status bufferen bezárja a child frame-t;
+  ;; sub-buffereken (log, diff) normálisan visszanavigál
+  (advice-add 'magit-mode-bury-buffer :around
+              (lambda (orig-fn &rest args)
+                (if (and (frame-live-p my/magit-child-frame)
+                         (eq (selected-frame) my/magit-child-frame)
+                         (derived-mode-p 'magit-status-mode))
+                    (progn
+                      (delete-frame my/magit-child-frame)
+                      (setq my/magit-child-frame nil))
+                  (apply orig-fn args)))))
 
 ;; Evil mode
 (unless (package-installed-p 'evil)
