@@ -229,3 +229,13 @@
 
 ;;(fringe-mode '(8 . 8))
 
+;; Jira
+(unless (package-installed-p 'jira)
+  (package-refresh-contents)
+  (package-install 'jira))
+(setq auth-sources '("~/.authinfo"))
+(setq jira-base-url "https://shapr3d.atlassian.net")
+(setq jira-api-version 3)
+(with-eval-after-load 'jira-issues
+  (advice-add 'jira-issues--transient-default-value :override
+              (lambda () '("--jql=project = LM ORDER BY created DESC"))))
