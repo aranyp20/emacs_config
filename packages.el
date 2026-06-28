@@ -221,6 +221,7 @@
   (package-install 'evil))
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
+(setq evil-cross-lines t)
 (require 'evil)
 (evil-mode 1)
 
