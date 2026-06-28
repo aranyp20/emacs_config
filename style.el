@@ -68,6 +68,51 @@
           (lambda ()
             (add-hook 'post-command-hook #'my/update-block-highlight nil t)))
 
+;; Block folding with TAB
+(add-to-invisibility-spec '(my/fold . t))
+(defvar-local my/fold-overlays nil)
+
+(defun my/block-node-at-point ()
+  "Return the narrowest foldable tree-sitter block node around point, or nil."
+  (when (treesit-parser-list)
+    (let ((node (treesit-node-at (point))))
+      (while (and node (not (member (treesit-node-type node)
+                                    '("compound_statement"
+                                      "field_declaration_list"
+                                      "declaration_list"))))
+        (setq node (treesit-node-parent node)))
+      (when (and node
+                 (not (string= "namespace_definition"
+                               (treesit-node-type (treesit-node-parent node)))))
+        node))))
+
+(defun my/toggle-block-fold ()
+  "Toggle fold of the innermost block at point."
+  (interactive)
+  (let ((node (my/block-node-at-point)))
+    (when node
+      (let* ((fold-start (save-excursion
+                           (goto-char (treesit-node-start node))
+                           (line-end-position)))
+             (fold-end   (save-excursion
+                           (goto-char (1- (treesit-node-end node)))
+                           (line-beginning-position)))
+             (existing   (cl-find-if (lambda (ov)
+                                       (= (overlay-start ov) fold-start))
+                                     my/fold-overlays)))
+        (if existing
+            (progn
+              (delete-overlay existing)
+              (setq my/fold-overlays (delq existing my/fold-overlays)))
+          (let ((ov (make-overlay fold-start fold-end nil t nil)))
+            (overlay-put ov 'invisible 'my/fold)
+            (overlay-put ov 'evaporate t)
+            (push ov my/fold-overlays)))))))
+
+(add-hook 'c++-ts-mode-hook
+          (lambda ()
+            (evil-local-set-key 'normal (kbd "TAB") #'my/toggle-block-fold)))
+
 ;; Black separator line above function definitions (tree-sitter)
 (defvar-local my/function-separator-timer nil)
 
