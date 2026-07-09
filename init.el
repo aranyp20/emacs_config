@@ -33,6 +33,8 @@
 (setq lolipop-speed 2.0)
 (lolipop-mode 1)
 
+(global-display-line-numbers-mode 1)
+
 (setq inhibit-startup-screen t)
 (setq ring-bell-function 'ignore)
 (setq create-lockfiles nil)
