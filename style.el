@@ -1,5 +1,18 @@
 (which-function-mode 1)
 
+;; Thin purple border around all windows
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 2
+      window-divider-default-right-width 2)
+(window-divider-mode 1)
+(set-face-attribute 'window-divider nil :foreground "#7B6FBF")
+(set-face-attribute 'window-divider-first-pixel nil :foreground "#7B6FBF")
+(set-face-attribute 'window-divider-last-pixel nil :foreground "#7B6FBF")
+;; Frame internal border covers the outer edges (top/left of outermost windows)
+(add-to-list 'default-frame-alist '(internal-border-width . 2))
+(modify-all-frames-parameters '((internal-border-width . 2)))
+(set-face-attribute 'internal-border nil :background "#7B6FBF")
+
 (set-face-attribute 'default nil :background "#352F66")
 
 (set-cursor-color "black")
