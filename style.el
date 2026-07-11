@@ -15,11 +15,11 @@
 
 (set-face-attribute 'default nil :background "#352F66")
 
-(set-cursor-color "black")
-(setq evil-default-cursor '("black" box))
-(setq evil-insert-state-cursor '("black" (bar . 3)))
+(set-cursor-color "white")
+(setq evil-default-cursor '("white" box))
+(setq evil-insert-state-cursor '("white" (bar . 3)))
 (setq evil-cursor-face 'my/cursor-face)
-(set-face-attribute 'cursor nil :background "black" :foreground "white")
+(set-face-attribute 'cursor nil :background "white" :foreground "#352F66")
 (global-hl-line-mode 1)
 (set-face-attribute 'hl-line nil :background "#3F3970")
 
