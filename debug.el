@@ -102,17 +102,33 @@
 (add-hook 'find-file-hook #'my/bp-restore-in-buffer)
 (my/bp-load)
 
-;;; --- Debug run -----------------------------------------------------------
+;;; --- Build + run ---------------------------------------------------------
 
-(defun my/debug-run ()
-  "Build metal-sandbox in Debug config and start a dape/lldb-dap session."
-  (interactive)
+(defun my/--on-build-done (buf msg)
+  (remove-hook 'compilation-finish-functions #'my/--on-build-done)
+  (when (string-match-p "finished" msg)
+    (start-process "metal-sandbox" nil my/metal-sandbox-debug-exe)))
+
+(defun my/--build (&optional start-dape)
+  (remove-hook 'compilation-finish-functions #'my/--on-build-done)
+  (remove-hook 'compilation-finish-functions #'my/--on-debug-build-done)
   (let ((default-directory my/metal-sandbox-root))
-    (add-hook 'compilation-finish-functions #'my/--on-debug-build-done)
+    (add-hook 'compilation-finish-functions
+              (if start-dape #'my/--on-debug-build-done #'my/--on-build-done))
     (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
                      " -scheme App -configuration Debug"
                      " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
                      " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
+
+(defun my/build-run ()
+  "Build metal-sandbox in Debug config and run it (no debugger)."
+  (interactive)
+  (my/--build nil))
+
+(defun my/debug-run ()
+  "Build metal-sandbox in Debug config and start a dape/lldb-dap session."
+  (interactive)
+  (my/--build t))
 
 ;;; --- dape ----------------------------------------------------------------
 
@@ -419,5 +435,13 @@ scanning the buffer."
       (if (featurep 'dape)
           (call-interactively #'dape-continue)
         (user-error "Dape is not active"))))
-  (define-key evil-normal-state-map (kbd "SPC k") #'dape-quit)
+  (define-key evil-normal-state-map (kbd "SPC k")
+    (lambda ()
+      (interactive)
+      (when-let ((proc (get-process "metal-sandbox")))
+        (delete-process proc))
+      (when-let ((win (get-buffer-window "*compilation*")))
+        (delete-window win))
+      (when (featurep 'dape)
+        (call-interactively #'dape-quit))))
   (define-key evil-normal-state-map (kbd "SPC n") #'dape-next))
