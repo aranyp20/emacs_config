@@ -131,3 +131,11 @@
                                (interactive)
                                (load-file "~/.emacs.d/init.el")
                                (message "Config reloaded.")))
+
+(global-set-key (kbd "M-<down>") (lambda () (interactive) (forward-line 5)))
+(global-set-key (kbd "M-<up>")   (lambda () (interactive) (forward-line -5)))
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "M-<down>") (lambda () (interactive) (forward-line 5)))
+  (define-key evil-normal-state-map (kbd "M-<up>")   (lambda () (interactive) (forward-line -5)))
+  (define-key evil-insert-state-map (kbd "M-<down>") (lambda () (interactive) (forward-line 5)))
+  (define-key evil-insert-state-map (kbd "M-<up>")   (lambda () (interactive) (forward-line -5))))
