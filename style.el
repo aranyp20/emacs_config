@@ -17,7 +17,7 @@
 
 (set-cursor-color "white")
 (setq evil-default-cursor '("white" box))
-(setq evil-insert-state-cursor '("white" (bar . 3)))
+(setq evil-insert-state-cursor '("white" (bar . 2)))
 (setq evil-cursor-face 'my/cursor-face)
 (set-face-attribute 'cursor nil :background "white" :foreground "#352F66")
 (global-hl-line-mode 1)
