@@ -32,7 +32,8 @@
 (setq lsp-clients-clangd-args '("--background-index"
                                  "--pch-storage=memory"
                                  "--header-insertion=never"
-                                 "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"))
+                                 "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"
+                                 "--query-driver=/var/run/com.apple.security.cryptexd/mnt/*/Metal.xctoolchain/usr/bin/metal"))
 
 ;; Projectile: project file search
 (unless (package-installed-p 'projectile)
