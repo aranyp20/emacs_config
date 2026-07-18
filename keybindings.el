@@ -139,3 +139,17 @@
   (define-key evil-normal-state-map (kbd "M-<up>")   (lambda () (interactive) (forward-line -5)))
   (define-key evil-insert-state-map (kbd "M-<down>") (lambda () (interactive) (forward-line 5)))
   (define-key evil-insert-state-map (kbd "M-<up>")   (lambda () (interactive) (forward-line -5))))
+
+(with-eval-after-load 'magit
+  (defun my/magit-blob-visit-original ()
+    "Magit revision bufferből (file~hash~) ugrik az eredeti fájl ugyanazon sorára."
+    (interactive)
+    (let ((line (line-number-at-pos)))
+      (if (bound-and-true-p magit-buffer-file-name)
+          (progn
+            (find-file magit-buffer-file-name)
+            (goto-line line))
+        (user-error "Nem magit revision bufferben vagyunk"))))
+  (add-hook 'magit-blob-mode-hook
+            (lambda ()
+              (evil-local-set-key 'normal (kbd "SPC y") #'my/magit-blob-visit-original))))
