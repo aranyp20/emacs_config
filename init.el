@@ -65,5 +65,3 @@
                 (let ((my/inhibit-save t))
                   (apply fn args))
                 (my/silent-save))))
-
-(projectile-switch-project-by-name "~/research/metal-sandbox")
