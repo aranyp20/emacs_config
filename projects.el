@@ -58,6 +58,13 @@
                  " && build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
                  filter-arg))))))
 
+(defun my/build-and-run-csg ()
+  (interactive)
+  (let ((default-directory (expand-file-name "~/csg/")))
+    (compile "cmake --build build/ && build/csg_proto"))
+  (add-hook 'compilation-finish-functions #'my/close-compilation-on-finish))
+
+
 (with-eval-after-load 'evil
 (define-key evil-normal-state-map (kbd "SPC B") 'my/build-and-run-neumann-tests)
   (define-key evil-normal-state-map (kbd "SPC U") 'my/set-neumann-test-filter))

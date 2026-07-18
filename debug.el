@@ -121,9 +121,14 @@
                      " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
 
 (defun my/build-run ()
-  "Build metal-sandbox in Debug config and run it (no debugger)."
+  "Build the current project and run it."
   (interactive)
-  (my/--build nil))
+  (let ((root (projectile-project-root)))
+    (cond
+     ((string-prefix-p (expand-file-name "~/csg/") root)
+      (my/build-and-run-csg))
+     (t
+      (my/--build nil)))))
 
 (defun my/debug-run ()
   "Build metal-sandbox in Debug config and start a dape/lldb-dap session."
