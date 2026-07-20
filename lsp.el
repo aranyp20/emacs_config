@@ -19,6 +19,7 @@
 (setq lsp-log-io nil)
 (setq lsp-idle-delay 0.5)
 (add-to-list 'auto-mode-alist '("\\.metal\\'" . c++-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-ts-mode))
 (add-hook 'c++-ts-mode-hook #'lsp-deferred)  ;; non-blocking, nem fagyasztja be a buffert
 
 (add-hook 'company-after-completion-hook
@@ -32,7 +33,6 @@
 (setq lsp-clients-clangd-args '("--background-index"
                                  "--pch-storage=memory"
                                  "--header-insertion=never"
-                                 "--compile-commands-dir=/Users/peter.arany/emacs_config/metal-sandbox-build"
                                  "--query-driver=/var/run/com.apple.security.cryptexd/mnt/*/Metal.xctoolchain/usr/bin/metal"))
 
 ;; Projectile: project file search
