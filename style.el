@@ -13,18 +13,19 @@
 (modify-all-frames-parameters '((internal-border-width . 2)))
 (set-face-attribute 'internal-border nil :background "#7B6FBF")
 
-(set-cursor-color "#39ff14")
-(setq evil-default-cursor '("#39ff14" box))
+(set-face-attribute 'default nil :background "#402C6B")
+
+(set-cursor-color "white")
+(setq evil-default-cursor '("white" box))
 (setq evil-insert-state-cursor '("white" (bar . 2)))
 (setq evil-cursor-face 'my/cursor-face)
-(set-face-attribute 'cursor nil :background "#39ff14" :foreground "black")
+(set-face-attribute 'cursor nil :background "white" :foreground "#402C6B")
 (global-hl-line-mode 1)
-(set-face-attribute 'hl-line nil :background "#313339")
+(set-face-attribute 'hl-line nil :background "#4C3677")
 
-(set-face-attribute 'font-lock-type-face nil :foreground "#9060C8")
-(set-face-attribute 'font-lock-keyword-face nil :foreground "#80FB4C")
+(set-face-attribute 'font-lock-keyword-face nil :foreground "#74FAFC")
 (set-face-attribute 'font-lock-function-name-face nil :foreground "yellow")
-(set-face-attribute 'font-lock-function-call-face nil :foreground "#74FAFC" :slant 'normal)
+(set-face-attribute 'font-lock-function-call-face nil :foreground "#80FB4C" :slant 'normal)
 (set-face-attribute 'font-lock-variable-use-face nil :foreground "white")
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 

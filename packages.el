@@ -66,16 +66,11 @@
 (setq xref-show-xrefs-function #'consult-xref)
 (setq xref-show-definitions-function #'consult-xref)
 
-;; An Old Hope theme (local repo)
-(add-to-list 'custom-theme-load-path "/Users/peter.arany/an-old-hope-emacs/")
-(load-theme 'an-old-hope t)
-
-;; Spaceline: spacemacs-style modeline (matches an-old-hope theme faces)
-(unless (package-installed-p 'spaceline)
-  (package-refresh-contents)
-  (package-install 'spaceline))
-(require 'spaceline-config)
-(spaceline-spacemacs-theme)
+;; Doom themes
+(unless (package-installed-p 'doom-themes)
+  (package-install 'doom-themes))
+(require 'doom-themes)
+(load-theme 'doom-shades-of-purple t)
 
 ;; Nerd icons
 (unless (package-installed-p 'nerd-icons)
@@ -84,6 +79,24 @@
 (require 'nerd-icons)
 (unless (find-font (font-spec :family "Symbols Nerd Font Mono"))
   (nerd-icons-install-fonts t))
+
+;; Doom modeline
+(unless (package-installed-p 'doom-modeline)
+  (package-refresh-contents)
+  (package-install 'doom-modeline))
+(require 'doom-modeline)
+(setq doom-modeline-icon t
+      doom-modeline-major-mode-icon t)
+
+(doom-modeline-def-modeline 'my-minimal
+  '(bar buffer-info-simple misc-info buffer-position vcs)
+  '())
+
+(defun my-doom-modeline ()
+  (doom-modeline-set-modeline 'my-minimal 'default))
+
+(add-hook 'doom-modeline-mode-hook #'my-doom-modeline)
+(doom-modeline-mode 1)
 
 ;; diff-hl: git diff indicators in the fringe (after theme so faces are correct)
 (unless (package-installed-p 'diff-hl)
