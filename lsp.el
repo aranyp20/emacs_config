@@ -44,3 +44,5 @@
 (setq projectile-cache-file (expand-file-name "projectile.cache" user-emacs-directory))
 (projectile-mode 1)
 (define-key projectile-mode-map (kbd "M-p") 'projectile-command-map)
+(projectile-add-known-project (expand-file-name "~/research/metal-sandbox/"))
+(projectile-add-known-project (expand-file-name "~/csg/"))

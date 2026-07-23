@@ -13,15 +13,15 @@
 (modify-all-frames-parameters '((internal-border-width . 2)))
 (set-face-attribute 'internal-border nil :background "#7B6FBF")
 
-(set-face-attribute 'default nil :background "#352F66")
+(set-face-attribute 'default nil :background "#402C6B")
 
 (set-cursor-color "white")
 (setq evil-default-cursor '("white" box))
 (setq evil-insert-state-cursor '("white" (bar . 2)))
 (setq evil-cursor-face 'my/cursor-face)
-(set-face-attribute 'cursor nil :background "white" :foreground "#352F66")
+(set-face-attribute 'cursor nil :background "white" :foreground "#402C6B")
 (global-hl-line-mode 1)
-(set-face-attribute 'hl-line nil :background "#3F3970")
+(set-face-attribute 'hl-line nil :background "#4C3677")
 
 (set-face-attribute 'font-lock-keyword-face nil :foreground "#74FAFC")
 (set-face-attribute 'font-lock-function-name-face nil :foreground "yellow")

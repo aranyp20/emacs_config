@@ -39,6 +39,17 @@
           (if (string-empty-p input) nil input)))
   (message "NeumannTests filter: %s" (or my/neumann-test-filter "<none>")))
 
+(defvar my/blend-test-filter nil
+  "GTest filter string for BlendTests, e.g. \"SuiteName.TestName\".")
+
+(defun my/set-blend-test-filter ()
+  (interactive)
+  (setq my/blend-test-filter
+        (let ((input (read-string "GTest filter (empty to clear): "
+                                  my/blend-test-filter)))
+          (if (string-empty-p input) nil input)))
+  (message "BlendTests filter: %s" (or my/blend-test-filter "<none>")))
+
 (defun my/build-and-run-neumann-tests ()
   (interactive)
   (let* ((buf (get-buffer "*compilation*"))
@@ -67,4 +78,4 @@
 
 (with-eval-after-load 'evil
 (define-key evil-normal-state-map (kbd "SPC B") 'my/build-and-run-neumann-tests)
-  (define-key evil-normal-state-map (kbd "SPC U") 'my/set-neumann-test-filter))
+  (define-key evil-normal-state-map (kbd "SPC U") 'my/set-blend-test-filter))

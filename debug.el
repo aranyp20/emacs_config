@@ -153,6 +153,11 @@
    "build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
    my/metal-sandbox-root))
 
+(defconst my/blend-tests-debug-exe
+  (expand-file-name
+   "build/xcode/src/BlendTests/Debug/BlendTests.app/Contents/MacOS/BlendTests"
+   my/metal-sandbox-root))
+
 (unless (package-installed-p 'dape)
   (package-refresh-contents)
   (package-install 'dape))
@@ -425,13 +430,46 @@ scanning the buffer."
     (kill-new (buffer-substring-no-properties (point-min) (point-max)))
     (message "dape-inspect: copied to clipboard")))
 
+(defun my/debug-blend-tests ()
+  "Build BlendTests in Debug config and start a dape/lldb-dap session."
+  (interactive)
+  (let ((default-directory my/metal-sandbox-root))
+    (add-hook 'compilation-finish-functions #'my/--on-debug-blend-tests-done)
+    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+                     " -scheme BlendTests -configuration Debug"
+                     " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
+                     " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
+
+(defun my/--on-debug-blend-tests-done (buf msg)
+  (remove-hook 'compilation-finish-functions #'my/--on-debug-blend-tests-done)
+  (when (string-match-p "finished" msg)
+    (when-let ((win (get-buffer-window "*compilation*")))
+      (delete-window win))
+    (my/dape-blend-tests-run)))
+
+(defun my/dape-blend-tests-run ()
+  "Start a dape/lldb-dap session for BlendTests."
+  (require 'dape)
+  (let ((config (list 'command my/lldb-dap
+                      :type "lldb"
+                      :request "launch"
+                      :program my/blend-tests-debug-exe
+                      :cwd my/metal-sandbox-root
+                      :stopOnEntry :json-false)))
+    (when my/blend-test-filter
+      (setq config (append config
+                            (list :args (vector (concat "--gtest_filter=*"
+                                                        my/blend-test-filter
+                                                        "*"))))))
+    (dape config)))
+
 ;;; --- Keybindings ---------------------------------------------------------
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC t") #'my/bp-toggle)
   (define-key evil-normal-state-map (kbd "SPC T") #'my/bp-clear-all)
   (define-key evil-normal-state-map (kbd "SPC d") #'my/debug-run)
-  (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-tests)
+  (define-key evil-normal-state-map (kbd "SPC D") #'my/debug-blend-tests)
   (define-key evil-normal-state-map (kbd "e")     #'my/dape-inspect-at-point)
   (define-key evil-normal-state-map (kbd "SPC E") #'my/dape-inspect-expand-and-copy)
   (define-key evil-normal-state-map (kbd "SPC c")
