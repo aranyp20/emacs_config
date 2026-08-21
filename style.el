@@ -28,7 +28,9 @@
 (set-face-attribute 'font-lock-function-call-face nil :foreground "#80FB4C" :slant 'normal)
 (set-face-attribute 'font-lock-variable-use-face nil :foreground "white")
 (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
-(set-face-attribute 'font-lock-type-face nil :foreground "#efe4a1")
+(set-face-attribute 'font-lock-type-face nil :foreground "#F4BB64")
+(set-face-attribute 'font-lock-property-name-face nil :foreground "#efe4a1")
+(set-face-attribute 'font-lock-property-use-face nil :foreground "#efe4a1" :weight 'regular)
 
 (add-hook 'c++-ts-mode-hook
           (lambda ()
