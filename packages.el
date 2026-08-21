@@ -66,10 +66,11 @@
 (setq xref-show-xrefs-function #'consult-xref)
 (setq xref-show-definitions-function #'consult-xref)
 
-;; Rebecca theme
-(unless (package-installed-p 'rebecca-theme)
-  (package-install 'rebecca-theme))
-(load-theme 'rebecca t)
+;; Doom themes
+(unless (package-installed-p 'doom-themes)
+  (package-install 'doom-themes))
+(require 'doom-themes)
+(load-theme 'doom-shades-of-purple t)
 
 ;; Nerd icons
 (unless (package-installed-p 'nerd-icons)
