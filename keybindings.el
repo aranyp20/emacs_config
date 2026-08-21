@@ -107,6 +107,7 @@
         (message "%s" ref))))
 (define-key evil-normal-state-map (kbd "y") #'my/magit-child-frame-toggle)
   (define-key evil-normal-state-map (kbd "SPC j") #'my/jira-child-frame-toggle)
+  (define-key evil-normal-state-map (kbd "SPC =") #'treemacs)
   (define-key evil-normal-state-map (kbd "SPC r")
     (lambda ()
       (interactive)

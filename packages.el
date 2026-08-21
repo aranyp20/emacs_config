@@ -216,6 +216,18 @@
                     (my/magit-child-frame-close)
                   (apply orig-fn args)))))
 
+;; Treemacs: file tree sidebar
+(unless (package-installed-p 'treemacs)
+  (package-refresh-contents)
+  (package-install 'treemacs))
+(unless (package-installed-p 'treemacs-evil)
+  (package-install 'treemacs-evil))
+(with-eval-after-load 'treemacs
+  (require 'treemacs-evil)
+  (setq treemacs-width 30
+        treemacs-show-hidden-files t
+        treemacs-filewatch-mode t))
+
 ;; Evil mode
 (unless (package-installed-p 'evil)
   (package-install 'evil))
