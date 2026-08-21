@@ -13,21 +13,19 @@
 (modify-all-frames-parameters '((internal-border-width . 2)))
 (set-face-attribute 'internal-border nil :background "#7B6FBF")
 
-(set-face-attribute 'default nil :background "#402C6B")
+(set-face-attribute 'default nil :foreground "white")
+(set-face-attribute 'font-lock-keyword-face nil :foreground "#CF9FFF")
+(set-face-attribute 'font-lock-function-name-face nil :foreground "#B8860B")
+(set-face-attribute 'font-lock-string-face nil :foreground "#2de0a7")
+(set-face-attribute 'font-lock-constant-face nil :foreground "#6dfedf")
+(set-face-attribute 'font-lock-function-call-face nil :foreground "#efe4a1" :slant 'normal)
+(let ((theme-var-color (face-attribute 'font-lock-variable-use-face :foreground nil t)))
+  (set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
+  (set-face-attribute 'font-lock-variable-use-face nil :foreground "white")
+  (set-face-attribute 'font-lock-property-use-face nil :foreground theme-var-color)
+  (set-face-attribute 'font-lock-property-name-face nil :foreground theme-var-color))
 
-(set-cursor-color "white")
-(setq evil-default-cursor '("white" box))
-(setq evil-insert-state-cursor '("white" (bar . 2)))
-(setq evil-cursor-face 'my/cursor-face)
-(set-face-attribute 'cursor nil :background "white" :foreground "#402C6B")
 (global-hl-line-mode 1)
-(set-face-attribute 'hl-line nil :background "#4C3677")
-
-(set-face-attribute 'font-lock-keyword-face nil :foreground "#74FAFC")
-(set-face-attribute 'font-lock-function-name-face nil :foreground "yellow")
-(set-face-attribute 'font-lock-function-call-face nil :foreground "#80FB4C" :slant 'normal)
-(set-face-attribute 'font-lock-variable-use-face nil :foreground "white")
-(set-face-attribute 'font-lock-variable-name-face nil :foreground "white")
 
 (add-hook 'c++-ts-mode-hook
           (lambda ()
