@@ -107,15 +107,16 @@
 (defun my/--on-build-done (buf msg)
   (remove-hook 'compilation-finish-functions #'my/--on-build-done)
   (when (string-match-p "finished" msg)
-    (start-process "metal-sandbox" nil my/metal-sandbox-debug-exe)))
+    (start-process "metal-sandbox" nil my/--active-app-exe)))
 
 (defun my/--build (&optional start-dape)
   (remove-hook 'compilation-finish-functions #'my/--on-build-done)
   (remove-hook 'compilation-finish-functions #'my/--on-debug-build-done)
-  (let ((default-directory my/metal-sandbox-root))
+  (my/--activate-project)
+  (let ((default-directory my/--active-root))
     (add-hook 'compilation-finish-functions
               (if start-dape #'my/--on-debug-build-done #'my/--on-build-done))
-    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+    (compile (concat "xcodebuild -project " my/xcode-xcodeproj-rel
                      " -scheme App -configuration Debug"
                      " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
                      " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
@@ -137,26 +138,34 @@
 
 ;;; --- dape ----------------------------------------------------------------
 
-(defconst my/metal-sandbox-root
-  (expand-file-name "~/research/metal-sandbox/"))
-
-(defconst my/metal-sandbox-debug-exe
-  (expand-file-name
-   "build/xcode/src/App/Debug/Research.app/Contents/MacOS/Research"
-   my/metal-sandbox-root))
+;; Relative paths shared by all xcode research projects
+(defconst my/xcode-xcodeproj-rel  "build/xcode/research.xcodeproj")
+(defconst my/xcode-app-exe-rel    "build/xcode/src/App/Debug/Research.app/Contents/MacOS/Research")
+(defconst my/xcode-neumann-exe-rel "build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests")
+(defconst my/xcode-blend-exe-rel  "build/xcode/src/BlendTests/Debug/BlendTests.app/Contents/MacOS/BlendTests")
 
 (defconst my/lldb-dap
   "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-dap")
 
-(defconst my/neumann-tests-debug-exe
-  (expand-file-name
-   "build/xcode/src/NeumannTests/Debug/NeumannTests.app/Contents/MacOS/NeumannTests"
-   my/metal-sandbox-root))
+;; Static paths kept only for the named dape-config entry (manual M-x dape use)
+(defconst my/metal-sandbox-root
+  (expand-file-name "~/research/metal-sandbox/"))
+(defconst my/metal-sandbox-debug-exe
+  (expand-file-name my/xcode-app-exe-rel my/metal-sandbox-root))
 
-(defconst my/blend-tests-debug-exe
-  (expand-file-name
-   "build/xcode/src/BlendTests/Debug/BlendTests.app/Contents/MacOS/BlendTests"
-   my/metal-sandbox-root))
+;; Active build state — captured at invocation time so hooks use the right project
+(defvar my/--active-root nil)
+(defvar my/--active-app-exe nil)
+(defvar my/--active-neumann-exe nil)
+(defvar my/--active-blend-exe nil)
+
+(defun my/--activate-project ()
+  "Capture the current project root and derive exe paths from it."
+  (let ((root (my/project-root)))
+    (setq my/--active-root        root
+          my/--active-app-exe     (expand-file-name my/xcode-app-exe-rel root)
+          my/--active-neumann-exe (expand-file-name my/xcode-neumann-exe-rel root)
+          my/--active-blend-exe   (expand-file-name my/xcode-blend-exe-rel root))))
 
 (unless (package-installed-p 'dape)
   (package-refresh-contents)
@@ -190,13 +199,13 @@
             (dape-breakpoint-toggle)))))))
 
 (defun my/dape-run ()
-  "Start a dape/lldb-dap session for metal-sandbox."
+  "Start a dape/lldb-dap session for the current project."
   (require 'dape)
   (dape `(command ,my/lldb-dap
           :type "lldb"
           :request "launch"
-          :program ,my/metal-sandbox-debug-exe
-          :cwd ,my/metal-sandbox-root
+          :program ,my/--active-app-exe
+          :cwd ,my/--active-root
           :stopOnEntry :json-false)))
 
 ;;; --- Build + debug integration -------------------------------------------
@@ -211,9 +220,10 @@
 (defun my/debug-tests ()
   "Build NeumannTests in Debug config and start a dape/lldb-dap session."
   (interactive)
-  (let ((default-directory my/metal-sandbox-root))
+  (my/--activate-project)
+  (let ((default-directory my/--active-root))
     (add-hook 'compilation-finish-functions #'my/--on-debug-tests-done)
-    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+    (compile (concat "xcodebuild -project " my/xcode-xcodeproj-rel
                      " -scheme NeumannTests -configuration Debug"
                      " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
                      " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
@@ -231,8 +241,8 @@
   (let ((config (list 'command my/lldb-dap
                       :type "lldb"
                       :request "launch"
-                      :program my/neumann-tests-debug-exe
-                      :cwd my/metal-sandbox-root
+                      :program my/--active-neumann-exe
+                      :cwd my/--active-root
                       :stopOnEntry :json-false)))
     (when my/neumann-test-filter
       (setq config (append config
@@ -433,9 +443,10 @@ scanning the buffer."
 (defun my/debug-blend-tests ()
   "Build BlendTests in Debug config and start a dape/lldb-dap session."
   (interactive)
-  (let ((default-directory my/metal-sandbox-root))
+  (my/--activate-project)
+  (let ((default-directory my/--active-root))
     (add-hook 'compilation-finish-functions #'my/--on-debug-blend-tests-done)
-    (compile (concat "xcodebuild -project build/xcode/research.xcodeproj"
+    (compile (concat "xcodebuild -project " my/xcode-xcodeproj-rel
                      " -scheme BlendTests -configuration Debug"
                      " -parallelizeTargets -jobs $(sysctl -n hw.logicalcpu)"
                      " -destination 'platform=macOS' ONLY_ACTIVE_ARCH=YES 2>&1"))))
@@ -453,8 +464,8 @@ scanning the buffer."
   (let ((config (list 'command my/lldb-dap
                       :type "lldb"
                       :request "launch"
-                      :program my/blend-tests-debug-exe
-                      :cwd my/metal-sandbox-root
+                      :program my/--active-blend-exe
+                      :cwd my/--active-root
                       :stopOnEntry :json-false)))
     (when my/blend-test-filter
       (setq config (append config

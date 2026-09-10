@@ -1,5 +1,11 @@
 (setq compilation-scroll-output t)
 
+(defun my/project-root ()
+  "Return current projectile root, or default-directory as fallback."
+  (if (fboundp 'projectile-project-root)
+      (projectile-project-root)
+    default-directory))
+
 (add-to-list 'display-buffer-alist
              '("\\*compilation\\*"
                (display-buffer-in-side-window)
@@ -13,7 +19,7 @@
 
 (defun my/build-and-run-metal-sandbox ()
   (interactive)
-  (let ((default-directory (expand-file-name "~/research/metal-sandbox/")))
+  (let ((default-directory (my/project-root)))
     (compile
      (concat "DEVELOPER_DIR=" my/xcode-developer-dir
              " xcodebuild -project build/xcode/research.xcodeproj"
@@ -56,7 +62,7 @@
          (proc (and buf (get-buffer-process buf))))
     (if (and proc (process-live-p proc))
         (kill-process proc)
-      (let ((default-directory (expand-file-name "~/research/metal-sandbox/"))
+      (let ((default-directory (my/project-root))
             (filter-arg (if my/neumann-test-filter
                             (concat " --gtest_filter='*" my/neumann-test-filter "*'")
                           "")))
